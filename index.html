@@ -250,23 +250,11 @@
     <div class="card" style="flex:1;">
       <div class="card-label">공통 정책</div>
       <div class="input-tabs">
-        <button class="tab-btn active" onclick="switchTab('policy','csv')">CSV</button>
-        <button class="tab-btn" onclick="switchTab('policy','url')">URL</button>
+        <button class="tab-btn active" onclick="switchTab('policy','url')">URL</button>
         <button class="tab-btn" onclick="switchTab('policy','text')">직접 작성</button>
       </div>
-      <div id="policy-csv" class="csv-panel">
-        <div class="csv-drop-area" id="policy-drop" onclick="document.getElementById('csv-policy').click()">
-          <div style="font-size:18px;color:#b4b2a9;">↑</div>
-          <p>CSV 파일 업로드</p>
-          <span>클릭하거나 드래그해서 올려줘</span>
-          <input type="file" id="csv-policy" accept=".csv" style="display:none;" onchange="loadCsv(event,'policy')">
-        </div>
-        <div class="csv-file-name" id="policy-filename">
-          <span id="policy-fname-text"></span>
-          <button class="csv-clear-btn" onclick="clearCsv('policy')">✕</button>
-        </div>
-      </div>
-      <div id="policy-url" class="url-panel">
+
+      <div id="policy-url" class="url-panel" style="display:flex;">
         <div class="url-input-wrap">
           <input type="text" class="url-input" id="policy-url-input" placeholder="https://raw.githubusercontent.com/...">
           <button class="url-fetch-btn" onclick="fetchUrl('policy')">불러오기</button>
@@ -282,23 +270,11 @@
     <div class="card" style="flex:1;">
       <div class="card-label">기능 명세</div>
       <div class="input-tabs">
-        <button class="tab-btn active" onclick="switchTab('spec','csv')">CSV</button>
-        <button class="tab-btn" onclick="switchTab('spec','url')">URL</button>
+        <button class="tab-btn active" onclick="switchTab('spec','url')">URL</button>
         <button class="tab-btn" onclick="switchTab('spec','text')">직접 작성</button>
       </div>
-      <div id="spec-csv" class="csv-panel">
-        <div class="csv-drop-area" id="spec-drop" onclick="document.getElementById('csv-spec').click()">
-          <div style="font-size:18px;color:#b4b2a9;">↑</div>
-          <p>CSV 파일 업로드</p>
-          <span>클릭하거나 드래그해서 올려줘</span>
-          <input type="file" id="csv-spec" accept=".csv" style="display:none;" onchange="loadCsv(event,'spec')">
-        </div>
-        <div class="csv-file-name" id="spec-filename">
-          <span id="spec-fname-text"></span>
-          <button class="csv-clear-btn" onclick="clearCsv('spec')">✕</button>
-        </div>
-      </div>
-      <div id="spec-url" class="url-panel">
+
+      <div id="spec-url" class="url-panel" style="display:flex;">
         <div class="url-input-wrap">
           <input type="text" class="url-input" id="spec-url-input" placeholder="https://raw.githubusercontent.com/...">
           <button class="url-fetch-btn" onclick="fetchUrl('spec')">불러오기</button>
@@ -314,23 +290,11 @@
     <div class="card" style="flex:1;">
       <div class="card-label">기능 정책</div>
       <div class="input-tabs">
-        <button class="tab-btn active" onclick="switchTab('fpolicy','csv')">CSV</button>
-        <button class="tab-btn" onclick="switchTab('fpolicy','url')">URL</button>
+        <button class="tab-btn active" onclick="switchTab('fpolicy','url')">URL</button>
         <button class="tab-btn" onclick="switchTab('fpolicy','text')">직접 작성</button>
       </div>
-      <div id="fpolicy-csv" class="csv-panel">
-        <div class="csv-drop-area" id="fpolicy-drop" onclick="document.getElementById('csv-fpolicy').click()">
-          <div style="font-size:18px;color:#b4b2a9;">↑</div>
-          <p>CSV 파일 업로드</p>
-          <span>클릭하거나 드래그해서 올려줘</span>
-          <input type="file" id="csv-fpolicy" accept=".csv" style="display:none;" onchange="loadCsv(event,'fpolicy')">
-        </div>
-        <div class="csv-file-name" id="fpolicy-filename">
-          <span id="fpolicy-fname-text"></span>
-          <button class="csv-clear-btn" onclick="clearCsv('fpolicy')">✕</button>
-        </div>
-      </div>
-      <div id="fpolicy-url" class="url-panel">
+
+      <div id="fpolicy-url" class="url-panel" style="display:flex;">
         <div class="url-input-wrap">
           <input type="text" class="url-input" id="fpolicy-url-input" placeholder="https://raw.githubusercontent.com/...">
           <button class="url-fetch-btn" onclick="fetchUrl('fpolicy')">불러오기</button>
@@ -362,8 +326,7 @@
     <div class="card" style="flex:1;">
       <div class="card-label-row">
         <label>컴포넌트 목록 <span class="required">*</span></label>
-        <button class="csv-btn" onclick="document.getElementById('csv-components').click()">↑ CSV</button>
-        <input type="file" id="csv-components" accept=".csv" style="display:none;" onchange="loadCsv(event,'components')">
+
       </div>
       <textarea id="components" rows="12" placeholder="예) 1. 정보 항목 선택 탭&#10;2. 정렬 드롭다운&#10;3. 0인 값 숨기기 필터&#10;4. 다운로드 버튼&#10;5. 가로형 막대 그래프"></textarea>
     </div>
@@ -391,15 +354,14 @@
 <script>
 let imageBase64 = null;
 let imageType = null;
-const csvData = { policy: '', spec: '', fpolicy: '' };
+
 const urlData = { policy: '', spec: '', fpolicy: '' };
 
 function switchTab(field, mode) {
-  const card = document.getElementById(`${field}-csv`).closest('.card');
+  const card = document.getElementById(`${field}-url`).closest('.card');
   const tabs = card.querySelectorAll('.tab-btn');
-  const modes = ['csv', 'url', 'text'];
+  const modes = ['url', 'text'];
   tabs.forEach((t, i) => t.classList.toggle('active', modes[i] === mode));
-  document.getElementById(`${field}-csv`).style.display = mode === 'csv' ? 'flex' : 'none';
   document.getElementById(`${field}-url`).style.display = mode === 'url' ? 'flex' : 'none';
   document.getElementById(`${field}-text`).style.display = mode === 'text' ? 'block' : 'none';
 }
@@ -421,37 +383,13 @@ async function fetchUrl(field) {
   }
 }
 
-function loadCsv(e, targetId) {
-  const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = (ev) => {
-    const text = ev.target.result;
-    const lines = text.split('\n').map(l => l.replace(/^"|"$/g, '').trim()).filter(l => l);
-    if (['policy','spec','fpolicy'].includes(targetId)) {
-      csvData[targetId] = lines.join('\n');
-      document.getElementById(`${targetId}-filename`).classList.add('visible');
-      document.getElementById(`${targetId}-fname-text`).textContent = file.name;
-    } else {
-      document.getElementById(targetId).value = lines.join('\n');
-    }
-    e.target.value = '';
-  };
-  reader.readAsText(file, 'UTF-8');
-}
 
-function clearCsv(field) {
-  csvData[field] = '';
-  document.getElementById(`${field}-filename`).classList.remove('visible');
-  document.getElementById(`${field}-fname-text`).textContent = '';
-}
 
 function getFieldValue(field) {
-  const card = document.getElementById(`${field}-csv`).closest('.card');
+  const card = document.getElementById(`${field}-url`).closest('.card');
   const activeTab = card.querySelector('.tab-btn.active');
   const idx = [...card.querySelectorAll('.tab-btn')].indexOf(activeTab);
-  if (idx === 0) return csvData[field];
-  if (idx === 1) return urlData[field];
+  if (idx === 0) return urlData[field];
   return document.getElementById(field)?.value.trim() || '';
 }
 
@@ -600,17 +538,7 @@ area.addEventListener('drop', (e) => {
   if (file && file.type.startsWith('image/')) handleImage({ target: { files: [file] } });
 });
 
-// CSV 드래그앤드롭
-['policy','spec','fpolicy'].forEach(field => {
-  const el = document.getElementById(`${field}-drop`);
-  el.addEventListener('dragover', (e) => { e.preventDefault(); el.classList.add('drag-over'); });
-  el.addEventListener('dragleave', () => el.classList.remove('drag-over'));
-  el.addEventListener('drop', (e) => {
-    e.preventDefault(); el.classList.remove('drag-over');
-    const file = e.dataTransfer.files[0];
-    if (file && file.name.endsWith('.csv')) loadCsv({ target: { files: [file] }, value: '' }, field);
-  });
-});
+
 
 // 이미지 붙여넣기
 document.addEventListener('paste', (e) => {
