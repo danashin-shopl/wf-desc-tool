@@ -374,7 +374,7 @@
           </div>
         </div>
         <div class="url-row">
-          <input type="text" class="url-input" id="policy-url" placeholder="GitHub Raw URL 입력 후 Enter">
+          <input type="text" class="url-input" id="policy-url" placeholder="GitHub Raw URL 입력 후 Enter / 불러오기">
           <button class="fetch-btn" id="policy-fetch-btn" onclick="fetchUrl('policy')">불러오기</button>
         </div>
       </div>
@@ -392,7 +392,7 @@
         </div>
         <div style="height:30px; display:flex; align-items:center;">
           <div class="url-row" id="policy-url-row" style="width:100%;">
-            <input type="text" class="url-input" id="requirements-url" placeholder="GitHub Raw URL 입력 후 Enter">
+            <input type="text" class="url-input" id="requirements-url" placeholder="GitHub Raw URL 입력 후 Enter / 불러오기">
             <button class="fetch-btn" id="requirements-fetch-btn" onclick="fetchUrl('requirements')">불러오기</button>
           </div>
           <div class="csv-row" id="policy-csv-row" style="display:none; width:100%;">
@@ -418,8 +418,7 @@
 
     <div class="upload-area" id="upload-area" onclick="document.getElementById('img-input').click()">
       <div style="font-size:22px; color:#b4b2a9;">↑</div>
-      <p>이미지 업로드 <span style="color:#e24b4a;">*</span></p>
-      <span>클릭, 드래그, 또는 Ctrl+V로 붙여넣기</span>
+      <p>클릭 / Drag&amp;Drop / Ctrl+V</p>
       <input type="file" id="img-input" accept="image/*" style="display:none;" onchange="handleImage(event)">
     </div>
 
