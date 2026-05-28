@@ -17,6 +17,7 @@
     flex-direction: column;
   }
 
+  /* 상단 바 */
   .top-bar {
     display: flex;
     align-items: center;
@@ -24,8 +25,8 @@
     padding: 14px 24px;
     background: #fff;
     border-bottom: 0.5px solid #e0dfd8;
+    flex-shrink: 0;
   }
-
   .top-bar h1 { font-size: 15px; font-weight: 600; letter-spacing: -0.3px; }
   .top-bar p { font-size: 12px; color: #888780; margin-top: 2px; }
 
@@ -41,15 +42,80 @@
   }
   .api-key-wrap input::placeholder { color: #b4b2a9; }
 
+  /* 상단 입력 섹션 */
+  .input-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    background: #fff;
+    border-bottom: 0.5px solid #e0dfd8;
+    flex-shrink: 0;
+  }
+
+  .input-col {
+    padding: 10px 16px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .input-col:first-child { border-right: 0.5px solid #e0dfd8; }
+
+  .input-col-label {
+    font-size: 11px; font-weight: 600; color: #b4b2a9;
+    letter-spacing: 0.5px; text-transform: uppercase;
+  }
+
+  .url-row { display: flex; gap: 6px; align-items: center; }
+  .url-input {
+    flex: 1; border: 0.5px solid #d3d1c7; border-radius: 6px;
+    padding: 5px 10px; font-size: 12px; font-family: inherit;
+    color: #1a1a18; background: #fafaf8; outline: none;
+  }
+  .url-input:focus { border-color: #888780; background: #fff; }
+  .url-input::placeholder { color: #b4b2a9; }
+
+  .fetch-btn {
+    font-size: 11px; font-family: inherit; padding: 4px 10px;
+    background: #f5f4f0; border: 0.5px solid #d3d1c7; border-radius: 5px;
+    cursor: pointer; color: #5f5e5a; white-space: nowrap; flex-shrink: 0;
+    transition: background 0.1s;
+  }
+  .fetch-btn:hover { background: #e8e7e3; }
+  .fetch-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .status-dot {
+    width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
+    background: #d3d1c7; transition: background 0.2s;
+  }
+  .status-dot.loaded { background: #3daf6e; }
+
+  .csv-row { display: flex; gap: 6px; align-items: center; }
+  .csv-upload-btn {
+    font-size: 11px; font-family: inherit; padding: 4px 10px;
+    background: #f5f4f0; border: 0.5px solid #d3d1c7; border-radius: 5px;
+    cursor: pointer; color: #5f5e5a; flex-shrink: 0; transition: background 0.1s;
+  }
+  .csv-upload-btn:hover { background: #e8e7e3; }
+  .csv-fname {
+    font-size: 11px; color: #888780; flex: 1;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .csv-clear-btn {
+    background: none; border: none; cursor: pointer;
+    font-size: 12px; color: #b4b2a9; padding: 0; line-height: 1; flex-shrink: 0;
+  }
+  .csv-clear-btn:hover { color: #5f5e5a; }
+
+  /* 메인 2단 */
   .main {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    flex: 1; min-height: 0;
+    grid-template-columns: 1fr 1fr;
+    flex: 1;
+    min-height: 0;
     overflow: hidden;
   }
 
   .col {
-    padding: 20px 16px;
+    padding: 16px;
     border-right: 0.5px solid #e0dfd8;
     display: flex; flex-direction: column; gap: 10px;
     height: 100%;
@@ -59,86 +125,19 @@
 
   .col-title {
     font-size: 11px; font-weight: 600; color: #b4b2a9;
-    letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 2px;
+    letter-spacing: 0.5px; text-transform: uppercase; flex-shrink: 0;
   }
 
   .card {
     background: #fff; border-radius: 10px;
-    border: 0.5px solid #e0dfd8; padding: 12px 14px; flex-shrink: 0;
+    border: 0.5px solid #e0dfd8; padding: 12px 14px;
     display: flex; flex-direction: column;
     min-height: 0; overflow: hidden;
   }
 
-  .card-label { font-size: 11px; color: #888780; font-weight: 500; margin-bottom: 8px; }
-
-  /* 탭 스타일 */
-  .input-tabs {
-    display: flex; gap: 0; margin-bottom: 10px;
-    border: 0.5px solid #e0dfd8; border-radius: 7px;
-    overflow: hidden; flex-shrink: 0;
-  }
-
-  .tab-btn {
-    flex: 1; padding: 7px 0; font-size: 12px; font-family: inherit;
-    font-weight: 500; border: none; cursor: pointer;
-    transition: background 0.15s, color 0.15s;
-    background: #f5f4f0; color: #b4b2a9;
-  }
-
-  .tab-btn.active {
-    background: #1a1a18; color: #f5f4f0;
-  }
-
-  .tab-btn:first-child { border-right: 0.5px solid #e0dfd8; }
-
-  /* CSV 업로드 패널 */
-  .csv-panel {
-    display: flex; flex-direction: column; gap: 8px; flex: 1;
-  }
-
-  .csv-drop-area {
-    border: 1.5px dashed #d3d1c7; border-radius: 8px;
-    padding: 20px 12px; text-align: center; cursor: pointer;
-    transition: background 0.15s, border-color 0.15s;
-    background: #fafaf8;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-  }
-  .csv-drop-area:hover { background: #f0efe9; border-color: #b4b2a9; }
-  .csv-drop-area.drag-over { background: #eef5fb; border-color: #378add; }
-  .csv-drop-area p { font-size: 12px; color: #5f5e5a; font-weight: 500; margin-top: 4px; }
-  .csv-drop-area span { font-size: 11px; color: #b4b2a9; }
-
-  .csv-file-name {
-    font-size: 11px; color: #888780;
-    padding: 5px 8px; background: #f5f4f0;
-    border-radius: 5px; display: none; align-items: center; justify-content: space-between;
-  }
-  .csv-file-name.visible { display: flex; }
-  .csv-clear-btn {
-    background: none; border: none; cursor: pointer;
-    font-size: 13px; color: #b4b2a9; padding: 0; line-height: 1;
-  }
-  .csv-clear-btn:hover { color: #5f5e5a; }
-
-  /* 직접 작성 패널 */
-  .text-panel { display: none; flex: 1; flex-direction: column; overflow: hidden; }
-
-  textarea {
-    width: 100%; border: none; outline: none; resize: none;
-    font-size: 12px; font-family: inherit; color: #1a1a18;
-    background: transparent; line-height: 1.7;
-    flex: 1; min-height: 60px; overflow-y: auto;
-  }
-  textarea::placeholder { color: #b4b2a9; }
-
-  /* 컴포넌트 목록 CSV 버튼 */
   .card-label-row {
     display: flex; align-items: center;
-    justify-content: space-between; margin-bottom: 6px;
+    justify-content: space-between; margin-bottom: 6px; flex-shrink: 0;
   }
   .card-label-row label { font-size: 11px; color: #888780; font-weight: 500; }
   .csv-btn {
@@ -148,20 +147,27 @@
   }
   .csv-btn:hover { background: #e8e7e3; }
 
-  /* 이미지 업로드 */
+  textarea {
+    width: 100%; border: none; outline: none; resize: none;
+    font-size: 12px; font-family: inherit; color: #1a1a18;
+    background: transparent; line-height: 1.7;
+    flex: 1; min-height: 60px; overflow-y: auto;
+  }
+  textarea::placeholder { color: #b4b2a9; }
+
   .upload-area {
-    background: #fff; border-radius: 10px; border: 1.5px dashed #d3d1c7;
-    text-align: center; cursor: pointer;
-    transition: background 0.15s, border-color 0.15s; flex-shrink: 0;
-    height: 360px; display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
+    border-radius: 10px; border: 1.5px dashed #d3d1c7;
+    text-align: center; cursor: pointer; flex-shrink: 0;
+    transition: background 0.15s, border-color 0.15s;
+    height: 260px; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; background: #fff;
   }
   .upload-area:hover { background: #f9f8f4; border-color: #b4b2a9; }
   .upload-area.drag-over { background: #eef5fb; border-color: #378add; }
   .upload-area p { font-size: 12px; color: #888780; margin-top: 4px; }
   .upload-area span { font-size: 11px; color: #b4b2a9; }
 
-  .preview-wrap { display: none; position: relative; flex-shrink: 0; height: 360px; }
+  .preview-wrap { display: none; position: relative; flex-shrink: 0; height: 260px; }
   .preview-wrap img {
     width: 100%; height: 100%; object-fit: contain;
     border-radius: 10px; border: 0.5px solid #e0dfd8; display: block;
@@ -200,15 +206,15 @@
   .download-btn {
     font-size: 11px; font-family: inherit; padding: 3px 10px;
     background: #1a1a18; border: 0.5px solid #1a1a18; border-radius: 5px;
-    cursor: pointer; color: #f5f4f0; transition: background 0.1s;
+    cursor: pointer; color: #f5f4f0; transition: opacity 0.1s;
   }
-  .download-btn:hover { background: #333; }
+  .download-btn:hover { opacity: 0.8; }
 
   .output-box {
     background: #fff; border-radius: 10px; border: 0.5px solid #e0dfd8;
     padding: 14px; font-size: 12px; line-height: 1.9;
     white-space: pre-wrap; color: #1a1a18; flex: 1; overflow-y: auto;
-    outline: none; cursor: text;
+    outline: none; cursor: text; min-height: 0;
   }
   .output-box:focus { border-color: #b4b2a9; }
   .output-empty {
@@ -235,62 +241,43 @@
   </div>
 </div>
 
-<div class="main">
-
-  <!-- 좌측: 공통 정책 + 기능 요구사항 -->
-  <div class="col">
-    <div class="col-title">입력</div>
-
-    <!-- 공통 정책 -->
-    <div class="card" style="flex:1;">
-      <div class="card-label">공통 정책</div>
-      <div class="input-tabs">
-        <button class="tab-btn active" onclick="switchTab('policy','csv')">CSV 업로드</button>
-        <button class="tab-btn" onclick="switchTab('policy','text')">직접 작성</button>
-      </div>
-      <div id="policy-csv" class="csv-panel">
-        <div class="csv-drop-area" id="policy-drop" onclick="document.getElementById('csv-policy').click()">
-          <div style="font-size:20px; color:#b4b2a9;">↑</div>
-          <p>CSV 파일 업로드</p>
-          <span>클릭하거나 드래그해서 올려줘</span>
-          <input type="file" id="csv-policy" accept=".csv" style="display:none;" onchange="loadCsv(event,'policy')">
-        </div>
-        <div class="csv-file-name" id="policy-filename">
-          <span id="policy-fname-text"></span>
-          <button class="csv-clear-btn" onclick="clearCsv('policy')">✕</button>
-        </div>
-      </div>
-      <div id="policy-text" class="text-panel">
-        <textarea id="policy" rows="10" placeholder="예) 0인 값은 0.0%로 표기&#10;비활성 항목은 회색 처리, 클릭 불가&#10;삭제는 소프트 딜리트, 목록에서 즉시 제거"></textarea>
-      </div>
+<!-- 상단 입력 섹션 -->
+<div class="input-section">
+  <div class="input-col">
+    <div class="input-col-label">공통 정책</div>
+    <div class="url-row">
+      <input type="text" class="url-input" id="policy-url" placeholder="GitHub Raw URL 입력 후 Enter">
+      <button class="fetch-btn" id="policy-fetch-btn" onclick="fetchUrl('policy')">불러오기</button>
+      <div class="status-dot" id="policy-dot"></div>
     </div>
-
-    <!-- 기능 요구사항 -->
-    <div class="card" style="flex:1;">
-      <div class="card-label">기능 요구사항</div>
-      <div class="input-tabs">
-        <button class="tab-btn active" onclick="switchTab('requirements','csv')">CSV 업로드</button>
-        <button class="tab-btn" onclick="switchTab('requirements','text')">직접 작성</button>
-      </div>
-      <div id="requirements-csv" class="csv-panel">
-        <div class="csv-drop-area" id="requirements-drop" onclick="document.getElementById('csv-requirements').click()">
-          <div style="font-size:20px; color:#b4b2a9;">↑</div>
-          <p>CSV 파일 업로드</p>
-          <span>클릭하거나 드래그해서 올려줘</span>
-          <input type="file" id="csv-requirements" accept=".csv" style="display:none;" onchange="loadCsv(event,'requirements')">
-        </div>
-        <div class="csv-file-name" id="requirements-filename">
-          <span id="requirements-fname-text"></span>
-          <button class="csv-clear-btn" onclick="clearCsv('requirements')">✕</button>
-        </div>
-      </div>
-      <div id="requirements-text" class="text-panel">
-        <textarea id="requirements" rows="10" placeholder="예) 탭 클릭 시 해당 정보의 그래프로 즉시 갱신&#10;정렬은 드롭다운, 실시간 반영&#10;0인 값 숨기기 체크박스 기본 off"></textarea>
-      </div>
+    <div class="csv-row">
+      <button class="csv-upload-btn" onclick="document.getElementById('csv-policy').click()">↑ CSV 업로드</button>
+      <input type="file" id="csv-policy" accept=".csv" style="display:none;" onchange="loadCsv(event,'policy')">
+      <span class="csv-fname" id="policy-fname"></span>
+      <button class="csv-clear-btn" id="policy-csv-clear" style="display:none;" onclick="clearCsv('policy')">✕</button>
     </div>
   </div>
 
-  <!-- 중앙: 이미지 업로드 + 컴포넌트 목록 -->
+  <div class="input-col">
+    <div class="input-col-label">기능 요구사항</div>
+    <div class="url-row">
+      <input type="text" class="url-input" id="requirements-url" placeholder="GitHub Raw URL 입력 후 Enter">
+      <button class="fetch-btn" id="requirements-fetch-btn" onclick="fetchUrl('requirements')">불러오기</button>
+      <div class="status-dot" id="requirements-dot"></div>
+    </div>
+    <div class="csv-row">
+      <button class="csv-upload-btn" onclick="document.getElementById('csv-requirements').click()">↑ CSV 업로드</button>
+      <input type="file" id="csv-requirements" accept=".csv" style="display:none;" onchange="loadCsv(event,'requirements')">
+      <span class="csv-fname" id="requirements-fname"></span>
+      <button class="csv-clear-btn" id="requirements-csv-clear" style="display:none;" onclick="clearCsv('requirements')">✕</button>
+    </div>
+  </div>
+</div>
+
+<!-- 메인 2단 -->
+<div class="main">
+
+  <!-- 좌: 와이어프레임 -->
   <div class="col">
     <div class="col-title">와이어프레임</div>
 
@@ -312,14 +299,14 @@
         <button class="csv-btn" onclick="document.getElementById('csv-components').click()">↑ CSV</button>
         <input type="file" id="csv-components" accept=".csv" style="display:none;" onchange="loadCsv(event,'components')">
       </div>
-      <textarea id="components" rows="10" placeholder="예) 1. 정보 항목 선택 탭&#10;2. 정렬 드롭다운&#10;3. 0인 값 숨기기 필터&#10;4. 다운로드 버튼&#10;5. 가로형 막대 그래프"></textarea>
+      <textarea id="components" placeholder="예) 1. 정보 항목 선택 탭&#10;2. 정렬 드롭다운&#10;3. 0인 값 숨기기 필터&#10;4. 다운로드 버튼"></textarea>
     </div>
 
     <button class="run-btn" id="run-btn" onclick="generate()">Description 생성</button>
     <div class="error-msg" id="error-msg"></div>
   </div>
 
-  <!-- 우측: 결과 -->
+  <!-- 우: 결과 -->
   <div class="col">
     <div class="output-header">
       <span class="col-title" style="margin-bottom:0;">결과</span>
@@ -338,16 +325,27 @@
 <script>
 let imageBase64 = null;
 let imageType = null;
-const csvData = { policy: '', requirements: '' };
+const fieldData = { policy: '', requirements: '' };
 
-function switchTab(field, mode) {
-  const csvPanel = document.getElementById(`${field}-csv`);
-  const textPanel = document.getElementById(`${field}-text`);
-  const tabs = csvPanel.closest('.card').querySelectorAll('.tab-btn');
-  tabs[0].classList.toggle('active', mode === 'csv');
-  tabs[1].classList.toggle('active', mode === 'text');
-  csvPanel.style.display = mode === 'csv' ? 'flex' : 'none';
-  textPanel.style.display = mode === 'text' ? 'flex' : 'none';
+async function fetchUrl(field) {
+  const url = document.getElementById(`${field}-url`).value.trim();
+  if (!url) return;
+  const btn = document.getElementById(`${field}-fetch-btn`);
+  const dot = document.getElementById(`${field}-dot`);
+  btn.disabled = true;
+  btn.textContent = '불러오는 중...';
+  dot.classList.remove('loaded');
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    fieldData[field] = await res.text();
+    dot.classList.add('loaded');
+  } catch (e) {
+    alert(`불러오기 실패: ${e.message}`);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '불러오기';
+  }
 }
 
 function loadCsv(e, targetId) {
@@ -355,14 +353,12 @@ function loadCsv(e, targetId) {
   if (!file) return;
   const reader = new FileReader();
   reader.onload = (ev) => {
-    const text = ev.target.result;
-    const lines = text.split('\n').map(l => l.replace(/^"|"$/g, '').trim()).filter(l => l);
+    const lines = ev.target.result.split('\n').map(l => l.replace(/^"|"$/g, '').trim()).filter(l => l);
     if (targetId === 'policy' || targetId === 'requirements') {
-      csvData[targetId] = lines.join('\n');
-      const fnameEl = document.getElementById(`${targetId}-filename`);
-      const fnameText = document.getElementById(`${targetId}-fname-text`);
-      fnameEl.classList.add('visible');
-      fnameText.textContent = file.name;
+      fieldData[targetId] = lines.join('\n');
+      document.getElementById(`${targetId}-fname`).textContent = file.name;
+      document.getElementById(`${targetId}-csv-clear`).style.display = 'inline';
+      document.getElementById(`${targetId}-dot`).classList.add('loaded');
     } else {
       document.getElementById(targetId).value = lines.join('\n');
     }
@@ -372,17 +368,10 @@ function loadCsv(e, targetId) {
 }
 
 function clearCsv(field) {
-  csvData[field] = '';
-  document.getElementById(`${field}-filename`).classList.remove('visible');
-  document.getElementById(`${field}-fname-text`).textContent = '';
-}
-
-function getFieldValue(field) {
-  const csvPanel = document.getElementById(`${field}-csv`);
-  const isCSVMode = csvPanel.style.display !== 'none' && !csvPanel.closest('.card').querySelector('.tab-btn:first-child').classList.contains('active') === false;
-  const csvTabActive = csvPanel.closest('.card').querySelector('.tab-btn:first-child').classList.contains('active');
-  if (csvTabActive) return csvData[field];
-  return document.getElementById(field).value.trim();
+  fieldData[field] = '';
+  document.getElementById(`${field}-fname`).textContent = '';
+  document.getElementById(`${field}-csv-clear`).style.display = 'none';
+  document.getElementById(`${field}-dot`).classList.remove('loaded');
 }
 
 function handleImage(e) {
@@ -403,7 +392,7 @@ function handleImage(e) {
 function removeImage() {
   imageBase64 = null; imageType = null;
   document.getElementById('preview-wrap').style.display = 'none';
-  document.getElementById('upload-area').style.display = 'block';
+  document.getElementById('upload-area').style.display = 'flex';
   document.getElementById('img-input').value = '';
 }
 
@@ -422,16 +411,14 @@ function downloadMd() {
   const now = new Date();
   const ts = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}`;
   const blob = new Blob([text], { type: 'text/markdown;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = url; a.download = `wf_description_${ts}.md`;
-  a.click(); URL.revokeObjectURL(url);
+  a.href = URL.createObjectURL(blob);
+  a.download = `wf_description_${ts}.md`;
+  a.click();
 }
 
 async function generate() {
   const apiKey = document.getElementById('api-key').value.trim();
-  const policy = getFieldValue('policy');
-  const requirements = getFieldValue('requirements');
   const components = document.getElementById('components').value.trim();
 
   if (!apiKey) { showError('Anthropic API Key를 입력해줘.'); return; }
@@ -463,19 +450,15 @@ async function generate() {
   • 조건부 케이스
   • 예외 처리`;
 
-  const userContent = [];
-  if (imageBase64 && imageType) {
-    userContent.push({ type: 'image', source: { type: 'base64', media_type: imageType, data: imageBase64 } });
-  }
+  const userContent = [
+    { type: 'image', source: { type: 'base64', media_type: imageType, data: imageBase64 } }
+  ];
 
   const textParts = [];
-  if (policy) textParts.push(`## 공통 정책\n${policy}`);
-  if (requirements) textParts.push(`## 기능 요구사항\n${requirements}`);
-  if (components) textParts.push(`## 와이어프레임 컴포넌트 목록\n${components}`);
-  textParts.push(imageBase64
-    ? '위 와이어프레임 이미지의 번호 마커를 참고해서 각 컴포넌트의 Description을 작성해줘.'
-    : '위 내용을 바탕으로 각 컴포넌트의 Description을 작성해줘.');
-
+  if (fieldData.policy) textParts.push(`## 공통 정책\n${fieldData.policy}`);
+  if (fieldData.requirements) textParts.push(`## 기능 요구사항\n${fieldData.requirements}`);
+  textParts.push(`## 와이어프레임 컴포넌트 목록\n${components}`);
+  textParts.push('위 와이어프레임 이미지의 번호 마커를 참고해서 각 컴포넌트의 Description을 작성해줘.');
   userContent.push({ type: 'text', text: textParts.join('\n\n') });
 
   try {
@@ -503,7 +486,6 @@ async function generate() {
       const text = data.content?.map(b => b.text || '').join('') || '';
       output.style.whiteSpace = 'pre-wrap';
       output.textContent = text;
-      output.setAttribute('data-placeholder', '생성 결과가 여기 표시돼요. 직접 수정도 가능해요.');
     }
   } catch (err) {
     showError(`요청 실패: ${err.message}`);
@@ -521,6 +503,7 @@ function hideError() {
   document.getElementById('error-msg').style.display = 'none';
 }
 
+// 이미지 드래그&드롭
 const area = document.getElementById('upload-area');
 area.addEventListener('dragover', (e) => { e.preventDefault(); area.classList.add('drag-over'); });
 area.addEventListener('dragleave', () => area.classList.remove('drag-over'));
@@ -530,34 +513,30 @@ area.addEventListener('drop', (e) => {
   if (file && file.type.startsWith('image/')) handleImage({ target: { files: [file] } });
 });
 
-['policy-drop','requirements-drop'].forEach(id => {
-  const el = document.getElementById(id);
-  el.addEventListener('dragover', (e) => { e.preventDefault(); el.classList.add('drag-over'); });
-  el.addEventListener('dragleave', () => el.classList.remove('drag-over'));
-  el.addEventListener('drop', (e) => {
-    e.preventDefault(); el.classList.remove('drag-over');
-    const field = id.replace('-drop','');
-    const file = e.dataTransfer.files[0];
-    if (file && file.name.endsWith('.csv')) loadCsv({ target: { files: [file] }, value: '' }, field);
+// URL 입력 엔터
+['policy', 'requirements'].forEach(field => {
+  document.getElementById(`${field}-url`).addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') fetchUrl(field);
   });
 });
 
-const savedKey = localStorage.getItem('anthropic_api_key');
-if (savedKey) document.getElementById('api-key').value = savedKey;
-document.getElementById('api-key').addEventListener('change', (e) => {
-  if (e.target.value) localStorage.setItem('anthropic_api_key', e.target.value);
-});
-
+// 클립보드 이미지 붙여넣기
 document.addEventListener('paste', (e) => {
   const items = e.clipboardData?.items;
   if (!items) return;
   for (const item of items) {
     if (item.type.startsWith('image/')) {
-      const file = item.getAsFile();
-      if (file) handleImage({ target: { files: [file] } });
+      handleImage({ target: { files: [item.getAsFile()] } });
       break;
     }
   }
+});
+
+// API Key 로컬 저장
+const savedKey = localStorage.getItem('anthropic_api_key');
+if (savedKey) document.getElementById('api-key').value = savedKey;
+document.getElementById('api-key').addEventListener('change', (e) => {
+  if (e.target.value) localStorage.setItem('anthropic_api_key', e.target.value);
 });
 </script>
 </body>
