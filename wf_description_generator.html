@@ -60,6 +60,28 @@
     display: flex; align-items: center; gap: 5px;
     font-size: 11px; font-weight: 600; color: #b4b2a9;
     letter-spacing: 0.5px; text-transform: uppercase;
+    cursor: pointer; user-select: none;
+  }
+  .input-col-label:hover { color: #888780; }
+
+  .input-col-chevron {
+    margin-left: auto;
+    color: #b4b2a9;
+    transition: transform 0.2s ease;
+    flex-shrink: 0;
+  }
+  .input-col.collapsed .input-col-chevron { transform: rotate(-90deg); }
+
+  .input-col-body {
+    display: flex; flex-direction: column; gap: 6px;
+    max-height: 120px;
+    overflow: hidden;
+    transition: max-height 0.2s ease, opacity 0.2s ease;
+    opacity: 1;
+  }
+  .input-col.collapsed .input-col-body {
+    max-height: 0;
+    opacity: 0;
   }
 
   .status-dot {
@@ -282,34 +304,42 @@
 <div class="input-section">
 
   <!-- 공통 정책: URL만 -->
-  <div class="input-col">
-    <div class="input-col-label">Common
+  <div class="input-col" id="common-col">
+    <div class="input-col-label" onclick="toggleCol('common-col')">
+      Common
       <div class="status-dot" id="policy-dot">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
       </div>
+      <svg class="input-col-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
     </div>
-    <div class="url-row">
-      <input type="text" class="url-input" id="policy-url" placeholder="GitHub Raw URL 입력 후 Enter">
-      <button class="fetch-btn" id="policy-fetch-btn" onclick="fetchUrl('policy')">불러오기</button>
+    <div class="input-col-body">
+      <div class="url-row">
+        <input type="text" class="url-input" id="policy-url" placeholder="GitHub Raw URL 입력 후 Enter">
+        <button class="fetch-btn" id="policy-fetch-btn" onclick="fetchUrl('policy')">불러오기</button>
+      </div>
     </div>
   </div>
 
   <!-- Policy: URL + CSV -->
-  <div class="input-col">
-    <div class="input-col-label">Policy
+  <div class="input-col" id="policy-col">
+    <div class="input-col-label" onclick="toggleCol('policy-col')">
+      Policy
       <div class="status-dot" id="requirements-dot">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
       </div>
+      <svg class="input-col-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
     </div>
-    <div class="url-row">
-      <input type="text" class="url-input" id="requirements-url" placeholder="GitHub Raw URL 입력 후 Enter">
-      <button class="fetch-btn" id="requirements-fetch-btn" onclick="fetchUrl('requirements')">불러오기</button>
-    </div>
-    <div class="csv-row">
-      <button class="csv-upload-btn" onclick="document.getElementById('csv-requirements').click()">↑ CSV 업로드</button>
-      <input type="file" id="csv-requirements" accept=".csv" style="display:none;" onchange="loadCsv(event,'requirements')">
-      <span class="csv-fname" id="requirements-fname"></span>
-      <button class="csv-clear-btn" id="requirements-csv-clear" style="display:none;" onclick="clearCsv('requirements')">✕</button>
+    <div class="input-col-body">
+      <div class="url-row">
+        <input type="text" class="url-input" id="requirements-url" placeholder="GitHub Raw URL 입력 후 Enter">
+        <button class="fetch-btn" id="requirements-fetch-btn" onclick="fetchUrl('requirements')">불러오기</button>
+      </div>
+      <div class="csv-row">
+        <button class="csv-upload-btn" onclick="document.getElementById('csv-requirements').click()">↑ CSV 업로드</button>
+        <input type="file" id="csv-requirements" accept=".csv" style="display:none;" onchange="loadCsv(event,'requirements')">
+        <span class="csv-fname" id="requirements-fname"></span>
+        <button class="csv-clear-btn" id="requirements-csv-clear" style="display:none;" onclick="clearCsv('requirements')">✕</button>
+      </div>
     </div>
   </div>
 
@@ -417,6 +447,10 @@ function clearCsv(field) {
   document.getElementById(`${field}-fname`).textContent = '';
   document.getElementById(`${field}-csv-clear`).style.display = 'none';
   updateStatusDot(field);
+}
+
+function toggleCol(id) {
+  document.getElementById(id).classList.toggle('collapsed');
 }
 
 function updateStatusDot(field) {
