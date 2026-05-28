@@ -17,7 +17,6 @@
     flex-direction: column;
   }
 
-  /* 상단 바 */
   .top-bar {
     display: flex;
     align-items: center;
@@ -28,7 +27,6 @@
     flex-shrink: 0;
   }
   .top-bar h1 { font-size: 15px; font-weight: 600; letter-spacing: -0.3px; }
-  .top-bar p { font-size: 12px; color: #888780; margin-top: 2px; }
 
   .api-key-wrap {
     display: flex; align-items: center; gap: 8px;
@@ -105,10 +103,10 @@
   }
   .csv-clear-btn:hover { color: #5f5e5a; }
 
-  /* 메인 2단 */
+  /* 메인 3단 */
   .main {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr auto 1fr;
     flex: 1;
     min-height: 0;
     overflow: hidden;
@@ -116,16 +114,54 @@
 
   .col {
     padding: 16px;
-    border-right: 0.5px solid #e0dfd8;
     display: flex; flex-direction: column; gap: 10px;
     height: 100%;
     overflow: hidden;
   }
-  .col:last-child { border-right: none; }
 
   .col-title {
     font-size: 11px; font-weight: 600; color: #b4b2a9;
     letter-spacing: 0.5px; text-transform: uppercase; flex-shrink: 0;
+  }
+
+  .wf-col { border-right: 0.5px solid #e0dfd8; }
+
+  /* 생성 버튼 컬럼 */
+  .generate-col {
+    width: 64px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    border-right: 0.5px solid #e0dfd8;
+    padding: 16px 0;
+  }
+
+  .run-btn {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: #1a1a18;
+    color: #f5f4f0;
+    border: none;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: opacity 0.15s, transform 0.1s;
+    flex-shrink: 0;
+  }
+  .run-btn:hover { opacity: 0.75; transform: scale(1.05); }
+  .run-btn:active { transform: scale(0.95); }
+  .run-btn:disabled { opacity: 0.3; cursor: not-allowed; transform: none; }
+
+  .run-btn-label {
+    font-size: 10px; color: #b4b2a9; font-weight: 500;
+    letter-spacing: 0.3px; text-align: center;
+  }
+
+  .error-msg {
+    display: none; padding: 6px 8px; background: #fcebeb;
+    border-radius: 7px; font-size: 10px; color: #a32d2d;
+    text-align: center; max-width: 56px; line-height: 1.4;
   }
 
   .card {
@@ -140,26 +176,22 @@
     justify-content: space-between; margin-bottom: 6px; flex-shrink: 0;
   }
   .card-label-row label { font-size: 11px; color: #888780; font-weight: 500; }
-  .csv-btn {
-    font-size: 11px; font-family: inherit; padding: 2px 7px;
-    background: #f5f4f0; border: 0.5px solid #d3d1c7; border-radius: 4px;
-    cursor: pointer; color: #888780; transition: background 0.1s;
-  }
-  .csv-btn:hover { background: #e8e7e3; }
 
   textarea {
     width: 100%; border: none; outline: none; resize: none;
     font-size: 12px; font-family: inherit; color: #1a1a18;
     background: transparent; line-height: 1.7;
-    flex: 1; min-height: 60px; overflow-y: auto;
+    flex: 1; min-height: 40px; overflow-y: auto;
   }
   textarea::placeholder { color: #b4b2a9; }
 
+  /* 이미지 영역 — 더 큰 비율 */
   .upload-area {
     border-radius: 10px; border: 1.5px dashed #d3d1c7;
-    text-align: center; cursor: pointer; flex-shrink: 0;
+    text-align: center; cursor: pointer;
     transition: background 0.15s, border-color 0.15s;
-    height: 260px; display: flex; flex-direction: column;
+    flex: 3; min-height: 140px;
+    display: flex; flex-direction: column;
     align-items: center; justify-content: center; background: #fff;
   }
   .upload-area:hover { background: #f9f8f4; border-color: #b4b2a9; }
@@ -167,7 +199,7 @@
   .upload-area p { font-size: 12px; color: #888780; margin-top: 4px; }
   .upload-area span { font-size: 11px; color: #b4b2a9; }
 
-  .preview-wrap { display: none; position: relative; flex-shrink: 0; height: 260px; }
+  .preview-wrap { display: none; position: relative; flex: 3; min-height: 140px; }
   .preview-wrap img {
     width: 100%; height: 100%; object-fit: contain;
     border-radius: 10px; border: 0.5px solid #e0dfd8; display: block;
@@ -181,14 +213,8 @@
   }
   .remove-btn:hover { background: #f5f4f0; }
 
-  .run-btn {
-    width: 100%; padding: 10px; font-size: 13px; font-family: inherit;
-    font-weight: 500; background: #1a1a18; color: #f5f4f0;
-    border: none; border-radius: 10px; cursor: pointer;
-    transition: opacity 0.15s; flex-shrink: 0;
-  }
-  .run-btn:hover { opacity: 0.85; }
-  .run-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  /* 컴포넌트 목록 — 더 작은 비율 */
+  .components-card { flex: 1; min-height: 80px; }
 
   .output-header {
     display: flex; align-items: center;
@@ -221,20 +247,12 @@
     display: flex; align-items: center; justify-content: center;
     height: 100%; color: #b4b2a9; font-size: 12px;
   }
-
-  .error-msg {
-    display: none; padding: 8px 12px; background: #fcebeb;
-    border-radius: 8px; font-size: 12px; color: #a32d2d; flex-shrink: 0;
-  }
 </style>
 </head>
 <body>
 
 <div class="top-bar">
-  <div>
-    <h1>WF Description 생성기</h1>
-    <p>공통 정책 + 요구사항 + 와이어프레임 → Description 자동 작성</p>
-  </div>
+  <h1>WF Description 생성기</h1>
   <div class="api-key-wrap">
     <label for="api-key">API Key</label>
     <input type="password" id="api-key" placeholder="sk-ant-..." autocomplete="off">
@@ -243,6 +261,8 @@
 
 <!-- 상단 입력 섹션 -->
 <div class="input-section">
+
+  <!-- 공통 정책: URL만 -->
   <div class="input-col">
     <div class="input-col-label">공통 정책</div>
     <div class="url-row">
@@ -250,16 +270,11 @@
       <button class="fetch-btn" id="policy-fetch-btn" onclick="fetchUrl('policy')">불러오기</button>
       <div class="status-dot" id="policy-dot"></div>
     </div>
-    <div class="csv-row">
-      <button class="csv-upload-btn" onclick="document.getElementById('csv-policy').click()">↑ CSV 업로드</button>
-      <input type="file" id="csv-policy" accept=".csv" style="display:none;" onchange="loadCsv(event,'policy')">
-      <span class="csv-fname" id="policy-fname"></span>
-      <button class="csv-clear-btn" id="policy-csv-clear" style="display:none;" onclick="clearCsv('policy')">✕</button>
-    </div>
   </div>
 
+  <!-- Policy: URL + CSV -->
   <div class="input-col">
-    <div class="input-col-label">기능 요구사항</div>
+    <div class="input-col-label">Policy</div>
     <div class="url-row">
       <input type="text" class="url-input" id="requirements-url" placeholder="GitHub Raw URL 입력 후 Enter">
       <button class="fetch-btn" id="requirements-fetch-btn" onclick="fetchUrl('requirements')">불러오기</button>
@@ -272,13 +287,14 @@
       <button class="csv-clear-btn" id="requirements-csv-clear" style="display:none;" onclick="clearCsv('requirements')">✕</button>
     </div>
   </div>
+
 </div>
 
-<!-- 메인 2단 -->
+<!-- 메인 3단 -->
 <div class="main">
 
   <!-- 좌: 와이어프레임 -->
-  <div class="col">
+  <div class="col wf-col">
     <div class="col-title">와이어프레임</div>
 
     <div class="upload-area" id="upload-area" onclick="document.getElementById('img-input').click()">
@@ -293,21 +309,27 @@
       <button class="remove-btn" onclick="removeImage()" aria-label="이미지 제거">✕</button>
     </div>
 
-    <div class="card" style="flex:1;">
+    <div class="card components-card">
       <div class="card-label-row">
         <label>컴포넌트 목록 <span style="color:#e24b4a;">*</span></label>
-        <button class="csv-btn" onclick="document.getElementById('csv-components').click()">↑ CSV</button>
-        <input type="file" id="csv-components" accept=".csv" style="display:none;" onchange="loadCsv(event,'components')">
       </div>
-      <textarea id="components" placeholder="예) 1. 정보 항목 선택 탭&#10;2. 정렬 드롭다운&#10;3. 0인 값 숨기기 필터&#10;4. 다운로드 버튼"></textarea>
+      <textarea id="components" placeholder="예) 헤더 타이틀 / 검색 바 / 필터 버튼 / 결과 목록 / 페이지네이션"></textarea>
     </div>
+  </div>
 
-    <button class="run-btn" id="run-btn" onclick="generate()">Description 생성</button>
+  <!-- 중앙: 생성 버튼 -->
+  <div class="generate-col">
+    <button class="run-btn" id="run-btn" onclick="generate()" title="Description 생성">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="9 18 15 12 9 6"/>
+      </svg>
+    </button>
+    <span class="run-btn-label">생성</span>
     <div class="error-msg" id="error-msg"></div>
   </div>
 
   <!-- 우: 결과 -->
-  <div class="col">
+  <div class="col result-col">
     <div class="output-header">
       <span class="col-title" style="margin-bottom:0;">결과</span>
       <div class="btn-group">
@@ -316,7 +338,7 @@
       </div>
     </div>
     <div class="output-box" id="output" contenteditable="true" spellcheck="false">
-      <div class="output-empty">Description 생성 버튼을 누르면 여기에 결과가 나와요</div>
+      <div class="output-empty">생성 버튼을 누르면 여기에 결과가 나와요</div>
     </div>
   </div>
 
@@ -354,14 +376,10 @@ function loadCsv(e, targetId) {
   const reader = new FileReader();
   reader.onload = (ev) => {
     const lines = ev.target.result.split('\n').map(l => l.replace(/^"|"$/g, '').trim()).filter(l => l);
-    if (targetId === 'policy' || targetId === 'requirements') {
-      fieldData[targetId] = lines.join('\n');
-      document.getElementById(`${targetId}-fname`).textContent = file.name;
-      document.getElementById(`${targetId}-csv-clear`).style.display = 'inline';
-      document.getElementById(`${targetId}-dot`).classList.add('loaded');
-    } else {
-      document.getElementById(targetId).value = lines.join('\n');
-    }
+    fieldData[targetId] = lines.join('\n');
+    document.getElementById(`${targetId}-fname`).textContent = file.name;
+    document.getElementById(`${targetId}-csv-clear`).style.display = 'inline';
+    document.getElementById(`${targetId}-dot`).classList.add('loaded');
     e.target.value = '';
   };
   reader.readAsText(file, 'UTF-8');
@@ -407,7 +425,7 @@ function copyResult() {
 
 function downloadMd() {
   const text = document.getElementById('output').innerText;
-  if (!text.trim() || text.includes('Description 생성 버튼')) return;
+  if (!text.trim() || text.includes('생성 버튼')) return;
   const now = new Date();
   const ts = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}`;
   const blob = new Blob([text], { type: 'text/markdown;charset=utf-8' });
@@ -419,15 +437,16 @@ function downloadMd() {
 
 async function generate() {
   const apiKey = document.getElementById('api-key').value.trim();
-  const components = document.getElementById('components').value.trim();
+  const rawComponents = document.getElementById('components').value.trim();
+  const components = rawComponents.split('/').map(s => s.trim()).filter(s => s).map((s, i) => `${i + 1}. ${s}`).join('\n');
 
-  if (!apiKey) { showError('Anthropic API Key를 입력해줘.'); return; }
-  if (!components) { showError('컴포넌트 목록을 입력해줘.'); return; }
-  if (!imageBase64) { showError('와이어프레임 이미지를 업로드해줘.'); return; }
+  if (!apiKey) { showError('API Key를 입력해줘.'); return; }
+  if (!rawComponents) { showError('컴포넌트 목록을 입력해줘.'); return; }
+  if (!imageBase64) { showError('이미지를 업로드해줘.'); return; }
 
   hideError();
   const btn = document.getElementById('run-btn');
-  btn.disabled = true; btn.textContent = '생성 중...';
+  btn.disabled = true;
 
   const output = document.getElementById('output');
   output.innerHTML = '<div class="output-empty">생성 중...</div>';
@@ -456,7 +475,7 @@ async function generate() {
 
   const textParts = [];
   if (fieldData.policy) textParts.push(`## 공통 정책\n${fieldData.policy}`);
-  if (fieldData.requirements) textParts.push(`## 기능 요구사항\n${fieldData.requirements}`);
+  if (fieldData.requirements) textParts.push(`## Policy\n${fieldData.requirements}`);
   textParts.push(`## 와이어프레임 컴포넌트 목록\n${components}`);
   textParts.push('위 와이어프레임 이미지의 번호 마커를 참고해서 각 컴포넌트의 Description을 작성해줘.');
   userContent.push({ type: 'text', text: textParts.join('\n\n') });
@@ -480,7 +499,7 @@ async function generate() {
 
     const data = await response.json();
     if (data.error) {
-      showError(`API 오류: ${data.error.message}`);
+      showError(`API 오류`);
       output.innerHTML = '<div class="output-empty">오류가 발생했어요</div>';
     } else {
       const text = data.content?.map(b => b.text || '').join('') || '';
@@ -488,10 +507,10 @@ async function generate() {
       output.textContent = text;
     }
   } catch (err) {
-    showError(`요청 실패: ${err.message}`);
+    showError('요청 실패');
     output.innerHTML = '<div class="output-empty">오류가 발생했어요</div>';
   } finally {
-    btn.disabled = false; btn.textContent = 'Description 생성';
+    btn.disabled = false;
   }
 }
 
