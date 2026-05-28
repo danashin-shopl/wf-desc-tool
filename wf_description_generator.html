@@ -105,8 +105,23 @@
   .input-col {
     padding: 8px 20px 0;
     display: flex; flex-direction: column; gap: 6px;
-    width: 300px; flex-shrink: 0;
+    width: 380px; flex-shrink: 0;
   }
+
+  /* Policy URL/CSV 모드 토글 */
+  .mode-toggle {
+    display: flex;
+    border: 0.5px solid #d3d1c7;
+    border-radius: 6px; overflow: hidden;
+    width: fit-content;
+  }
+  .mode-btn {
+    padding: 3px 11px; font-size: 11px; font-family: inherit;
+    font-weight: 500; border: none; background: #f5f4f0;
+    color: #b4b2a9; cursor: pointer; transition: background 0.12s, color 0.12s;
+  }
+  .mode-btn + .mode-btn { border-left: 0.5px solid #d3d1c7; }
+  .mode-btn.active { background: #1a1a18; color: #f5f4f0; }
 
   .input-col-label {
     display: flex; align-items: center; gap: 5px;
@@ -370,12 +385,16 @@
           <div class="status-dot" id="requirements-dot">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
           </div>
+          <div class="mode-toggle" style="margin-left:auto;">
+            <button class="mode-btn active" id="policy-mode-url" onclick="switchPolicyMode('url')">URL</button>
+            <button class="mode-btn" id="policy-mode-csv" onclick="switchPolicyMode('csv')">CSV</button>
+          </div>
         </div>
-        <div class="url-row">
+        <div class="url-row" id="policy-url-row">
           <input type="text" class="url-input" id="requirements-url" placeholder="GitHub Raw URL 입력 후 Enter">
           <button class="fetch-btn" id="requirements-fetch-btn" onclick="fetchUrl('requirements')">불러오기</button>
         </div>
-        <div class="csv-row">
+        <div class="csv-row" id="policy-csv-row" style="display:none;">
           <button class="csv-upload-btn" onclick="document.getElementById('csv-requirements').click()">↑ CSV 업로드</button>
           <input type="file" id="csv-requirements" accept=".csv" style="display:none;" onchange="loadCsv(event,'requirements')">
           <span class="csv-fname" id="requirements-fname"></span>
@@ -490,6 +509,13 @@ function clearCsv(field) {
   document.getElementById(`${field}-fname`).textContent = '';
   document.getElementById(`${field}-csv-clear`).style.display = 'none';
   updateStatusDot(field);
+}
+
+function switchPolicyMode(mode) {
+  document.getElementById('policy-url-row').style.display = mode === 'url' ? 'flex' : 'none';
+  document.getElementById('policy-csv-row').style.display = mode === 'csv' ? 'flex' : 'none';
+  document.getElementById('policy-mode-url').classList.toggle('active', mode === 'url');
+  document.getElementById('policy-mode-csv').classList.toggle('active', mode === 'csv');
 }
 
 function toggleContext() {
