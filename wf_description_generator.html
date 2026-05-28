@@ -136,7 +136,7 @@
   }
   .status-dot.loaded { opacity: 1; }
 
-  .url-row { display: flex; gap: 6px; align-items: center; }
+  .url-row { display: flex; gap: 6px; align-items: center; height: 30px; }
   .url-input {
     flex: 1; border: 0.5px solid #d3d1c7; border-radius: 6px;
     padding: 5px 10px; font-size: 12px; font-family: inherit;
@@ -390,7 +390,7 @@
             <button class="mode-btn" id="policy-mode-csv" onclick="switchPolicyMode('csv')">CSV</button>
           </div>
         </div>
-        <div style="height:30px; display:flex; align-items:center;">
+        <div style="height:30px; display:flex; align-items:center; overflow:hidden;">
           <div class="url-row" id="policy-url-row" style="width:100%;">
             <input type="text" class="url-input" id="requirements-url" placeholder="GitHub Raw URL 입력 후 Enter / 불러오기">
             <button class="fetch-btn" id="requirements-fetch-btn" onclick="fetchUrl('requirements')">불러오기</button>
