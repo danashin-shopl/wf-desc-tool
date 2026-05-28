@@ -706,7 +706,7 @@ async function generate() {
     output.textContent = text;
   } catch (err) {
     showError('요청 실패');
-    output.innerHTML = '<div class="output-empty">오류가 발생했어요</div>';
+    output.innerHTML = `<div class="output-empty" style="color:#a32d2d; font-size:11px; white-space:pre-wrap; text-align:left; padding:4px;">${err.message}</div>`;
     console.error(err);
   } finally {
     checkRunnable();
