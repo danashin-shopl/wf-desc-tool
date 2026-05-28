@@ -58,9 +58,17 @@
   .input-col:first-child { border-right: 0.5px solid #e0dfd8; }
 
   .input-col-label {
+    display: flex; align-items: center; gap: 5px;
     font-size: 11px; font-weight: 600; color: #b4b2a9;
     letter-spacing: 0.5px; text-transform: uppercase;
   }
+
+  .status-dot {
+    width: 14px; height: 14px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    color: #3daf6e; opacity: 0; transition: opacity 0.2s;
+  }
+  .status-dot.loaded { opacity: 1; }
 
   .url-row { display: flex; gap: 6px; align-items: center; }
   .url-input {
@@ -80,12 +88,6 @@
   .fetch-btn:hover { background: #e8e7e3; }
   .fetch-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-  .status-dot {
-    width: 16px; height: 16px; flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center;
-    color: #3daf6e; opacity: 0; transition: opacity 0.2s;
-  }
-  .status-dot.loaded { opacity: 1; }
 
   .csv-row { display: flex; gap: 6px; align-items: center; }
   .csv-upload-btn {
@@ -285,25 +287,27 @@
 
   <!-- 공통 정책: URL만 -->
   <div class="input-col">
-    <div class="input-col-label">Common</div>
+    <div class="input-col-label">Common
+      <div class="status-dot" id="policy-dot">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+    </div>
     <div class="url-row">
       <input type="text" class="url-input" id="policy-url" placeholder="GitHub Raw URL 입력 후 Enter">
       <button class="fetch-btn" id="policy-fetch-btn" onclick="fetchUrl('policy')">불러오기</button>
-      <div class="status-dot" id="policy-dot">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-      </div>
     </div>
   </div>
 
   <!-- Policy: URL + CSV -->
   <div class="input-col">
-    <div class="input-col-label">Policy</div>
+    <div class="input-col-label">Policy
+      <div class="status-dot" id="requirements-dot">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+    </div>
     <div class="url-row">
       <input type="text" class="url-input" id="requirements-url" placeholder="GitHub Raw URL 입력 후 Enter">
       <button class="fetch-btn" id="requirements-fetch-btn" onclick="fetchUrl('requirements')">불러오기</button>
-      <div class="status-dot" id="requirements-dot">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-      </div>
     </div>
     <div class="csv-row">
       <button class="csv-upload-btn" onclick="document.getElementById('csv-requirements').click()">↑ CSV 업로드</button>
@@ -381,15 +385,14 @@ async function fetchUrl(field) {
   const url = document.getElementById(`${field}-url`).value.trim();
   if (!url) return;
   const btn = document.getElementById(`${field}-fetch-btn`);
-  const dot = document.getElementById(`${field}-dot`);
   btn.disabled = true;
   btn.textContent = '불러오는 중...';
-  dot.classList.remove('loaded');
+  updateStatusDot(field);
   try {
     const res = await fetch(url);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     fieldData[field] = await res.text();
-    dot.classList.add('loaded');
+    updateStatusDot(field);
   } catch (e) {
     alert(`불러오기 실패: ${e.message}`);
   } finally {
@@ -407,7 +410,7 @@ function loadCsv(e, targetId) {
     fieldData[targetId] = lines.join('\n');
     document.getElementById(`${targetId}-fname`).textContent = file.name;
     document.getElementById(`${targetId}-csv-clear`).style.display = 'inline';
-    document.getElementById(`${targetId}-dot`).classList.add('loaded');
+    updateStatusDot(targetId);
     e.target.value = '';
   };
   reader.readAsText(file, 'UTF-8');
@@ -417,7 +420,12 @@ function clearCsv(field) {
   fieldData[field] = '';
   document.getElementById(`${field}-fname`).textContent = '';
   document.getElementById(`${field}-csv-clear`).style.display = 'none';
-  document.getElementById(`${field}-dot`).classList.remove('loaded');
+  updateStatusDot(field);
+}
+
+function updateStatusDot(field) {
+  const dotId = field === 'policy' ? 'policy-dot' : 'requirements-dot';
+  document.getElementById(dotId).classList.toggle('loaded', !!fieldData[field]);
 }
 
 function handleImage(e) {
