@@ -427,21 +427,18 @@
       <button class="remove-btn" onclick="removeImage()" aria-label="이미지 제거">✕</button>
     </div>
 
-    <div class="card components-card">
-      <div style="display:flex; flex:1; min-height:0; gap:0;">
-        <div style="flex:1; display:flex; flex-direction:column; min-width:0;">
-          <div class="card-label-row">
-            <label>Component List <span style="color:#e24b4a;">*</span></label>
-          </div>
-          <textarea id="components" placeholder="1. 헤더 타이틀&#10;2. 검색 바&#10;3. 필터 버튼&#10;4. 결과 목록"></textarea>
+    <div style="display:flex; gap:10px; flex:1; min-height:0;">
+      <div class="card" style="flex:1;">
+        <div class="card-label-row">
+          <label>Component List <span style="color:#e24b4a;">*</span></label>
         </div>
-        <div style="width:0.5px; background:#e0dfd8; margin:0 12px; flex-shrink:0;"></div>
-        <div style="flex:1; display:flex; flex-direction:column; min-width:0;">
-          <div class="card-label-row">
-            <label>추가 지침</label>
-          </div>
-          <textarea id="instructions" placeholder="추가 지침이 있는 경우 입력하세요."></textarea>
+        <textarea id="components" placeholder="예시)&#10;1. 헤더 타이틀&#10;2. 검색 바&#10;3. 필터 버튼&#10;4. 결과 목록"></textarea>
+      </div>
+      <div class="card" style="flex:1;">
+        <div class="card-label-row">
+          <label>추가 지침</label>
         </div>
+        <textarea id="instructions" placeholder="추가 지침이 있는 경우 입력하세요."></textarea>
       </div>
     </div>
   </div>
