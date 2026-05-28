@@ -390,15 +390,17 @@
             <button class="mode-btn" id="policy-mode-csv" onclick="switchPolicyMode('csv')">CSV</button>
           </div>
         </div>
-        <div class="url-row" id="policy-url-row">
-          <input type="text" class="url-input" id="requirements-url" placeholder="GitHub Raw URL 입력 후 Enter">
-          <button class="fetch-btn" id="requirements-fetch-btn" onclick="fetchUrl('requirements')">불러오기</button>
-        </div>
-        <div class="csv-row" id="policy-csv-row" style="display:none;">
-          <button class="csv-upload-btn" onclick="document.getElementById('csv-requirements').click()">↑ CSV 업로드</button>
-          <input type="file" id="csv-requirements" accept=".csv" style="display:none;" onchange="loadCsv(event,'requirements')">
-          <span class="csv-fname" id="requirements-fname"></span>
-          <button class="csv-clear-btn" id="requirements-csv-clear" style="display:none;" onclick="clearCsv('requirements')">✕</button>
+        <div style="height:30px; display:flex; align-items:center;">
+          <div class="url-row" id="policy-url-row" style="width:100%;">
+            <input type="text" class="url-input" id="requirements-url" placeholder="GitHub Raw URL 입력 후 Enter">
+            <button class="fetch-btn" id="requirements-fetch-btn" onclick="fetchUrl('requirements')">불러오기</button>
+          </div>
+          <div class="csv-row" id="policy-csv-row" style="display:none; width:100%;">
+            <button class="csv-upload-btn" onclick="document.getElementById('csv-requirements').click()">↑ CSV 업로드</button>
+            <input type="file" id="csv-requirements" accept=".csv" style="display:none;" onchange="loadCsv(event,'requirements')">
+            <span class="csv-fname" id="requirements-fname"></span>
+            <button class="csv-clear-btn" id="requirements-csv-clear" style="display:none;" onclick="clearCsv('requirements')">✕</button>
+          </div>
         </div>
       </div>
 
