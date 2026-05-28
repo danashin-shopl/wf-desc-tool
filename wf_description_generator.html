@@ -345,8 +345,8 @@
       <input type="password" id="api-key" placeholder="sk-ant-..." autocomplete="off">
     </div>
     <div class="mode-toggle">
-      <button class="mode-btn active" id="model-claude" onclick="switchModel('claude')">Claude</button>
-      <button class="mode-btn" id="model-gemini" onclick="switchModel('gemini')">Gemini</button>
+      <button class="mode-btn active" id="model-gemini" onclick="switchModel('gemini')">Gemini</button>
+      <button class="mode-btn" id="model-claude" onclick="switchModel('claude')">Claude</button>
     </div>
   </div>
 </div>
@@ -483,7 +483,7 @@
 let imageBase64 = null;
 let imageType = null;
 const fieldData = { policy: '', requirements: '' };
-let currentModel = 'claude';
+let currentModel = 'gemini';
 
 // 조직 공용 Gemini API Key (고정)
 const GEMINI_FIXED_KEY = 'AIzaSyAjE7ljs05nwZxR0uCR88xG7amn6Oet7N8';
@@ -760,6 +760,9 @@ function checkRunnable() {
 }
 
 document.getElementById('components').addEventListener('input', checkRunnable);
+
+// 초기 모델 상태 반영 (Gemini 기본)
+document.getElementById('api-key-wrap').style.visibility = 'hidden';
 
 // API Key 로컬 저장 (모델별 분리)
 const savedClaudeKey = localStorage.getItem('anthropic_api_key');
