@@ -340,13 +340,13 @@
 <div class="top-bar">
   <h1>WF Description 생성기</h1>
   <div style="display:flex; align-items:center; gap:10px;">
-    <div class="mode-toggle">
-      <button class="mode-btn active" id="model-claude" onclick="switchModel('claude')">Claude</button>
-      <button class="mode-btn" id="model-gemini" onclick="switchModel('gemini')">Gemini</button>
-    </div>
     <div class="api-key-wrap" id="api-key-wrap">
       <label for="api-key">API Key</label>
       <input type="password" id="api-key" placeholder="sk-ant-..." autocomplete="off">
+    </div>
+    <div class="mode-toggle">
+      <button class="mode-btn active" id="model-claude" onclick="switchModel('claude')">Claude</button>
+      <button class="mode-btn" id="model-gemini" onclick="switchModel('gemini')">Gemini</button>
     </div>
   </div>
 </div>
@@ -494,10 +494,10 @@ function switchModel(model) {
   document.getElementById('model-gemini').classList.toggle('active', model === 'gemini');
   const wrap = document.getElementById('api-key-wrap');
   if (model === 'claude') {
-    wrap.style.display = '';
+    wrap.style.visibility = '';
     document.getElementById('api-key').value = localStorage.getItem('anthropic_api_key') || '';
   } else {
-    wrap.style.display = 'none'; // 공용 키 고정 사용 — 입력 불필요
+    wrap.style.visibility = 'hidden'; // 공간 유지, 공용 키 고정 사용
   }
 }
 
