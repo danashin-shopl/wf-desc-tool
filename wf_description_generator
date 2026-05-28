@@ -11,7 +11,8 @@
     font-family: -apple-system, 'Pretendard', 'Apple SD Gothic Neo', sans-serif;
     background: #f5f4f0;
     color: #1a1a18;
-    min-height: 100vh;
+    height: 100vh;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
   }
@@ -44,13 +45,15 @@
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     flex: 1; min-height: 0;
+    overflow: hidden;
   }
 
   .col {
     padding: 20px 16px;
     border-right: 0.5px solid #e0dfd8;
     display: flex; flex-direction: column; gap: 10px;
-    min-height: calc(100vh - 60px);
+    height: 100%;
+    overflow: hidden;
   }
   .col:last-child { border-right: none; }
 
@@ -63,6 +66,7 @@
     background: #fff; border-radius: 10px;
     border: 0.5px solid #e0dfd8; padding: 12px 14px; flex-shrink: 0;
     display: flex; flex-direction: column;
+    min-height: 0; overflow: hidden;
   }
 
   .card-label { font-size: 11px; color: #888780; font-weight: 500; margin-bottom: 8px; }
@@ -121,12 +125,13 @@
   .csv-clear-btn:hover { color: #5f5e5a; }
 
   /* 직접 작성 패널 */
-  .text-panel { display: none; }
+  .text-panel { display: none; flex: 1; flex-direction: column; overflow: hidden; }
 
   textarea {
     width: 100%; border: none; outline: none; resize: none;
     font-size: 12px; font-family: inherit; color: #1a1a18;
     background: transparent; line-height: 1.7;
+    flex: 1; min-height: 60px; overflow-y: auto;
   }
   textarea::placeholder { color: #b4b2a9; }
 
@@ -342,7 +347,7 @@ function switchTab(field, mode) {
   tabs[0].classList.toggle('active', mode === 'csv');
   tabs[1].classList.toggle('active', mode === 'text');
   csvPanel.style.display = mode === 'csv' ? 'flex' : 'none';
-  textPanel.style.display = mode === 'text' ? 'block' : 'none';
+  textPanel.style.display = mode === 'text' ? 'flex' : 'none';
 }
 
 function loadCsv(e, targetId) {
