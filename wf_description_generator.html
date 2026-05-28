@@ -158,6 +158,26 @@
     letter-spacing: 0.3px; text-align: center;
   }
 
+  .run-btn-wrap { position: relative; }
+  .run-btn-tooltip {
+    display: none;
+    position: absolute;
+    left: 50%; transform: translateX(-50%);
+    bottom: calc(100% + 8px);
+    background: #1a1a18; color: #f5f4f0;
+    font-size: 11px; line-height: 1.5;
+    padding: 6px 10px; border-radius: 7px;
+    white-space: nowrap; pointer-events: none; z-index: 100;
+    text-align: center;
+  }
+  .run-btn-tooltip::after {
+    content: '';
+    position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: #1a1a18;
+  }
+  .run-btn-wrap.show-tooltip:hover .run-btn-tooltip { display: block; }
+
   .error-msg {
     display: none; padding: 6px 8px; background: #fcebeb;
     border-radius: 7px; font-size: 10px; color: #a32d2d;
@@ -311,7 +331,7 @@
 
     <div class="card components-card">
       <div class="card-label-row">
-        <label>컴포넌트 목록 <span style="color:#e24b4a;">*</span></label>
+        <label>Component List <span style="color:#e24b4a;">*</span></label>
       </div>
       <textarea id="components" placeholder="예) 헤더 타이틀 / 검색 바 / 필터 버튼 / 결과 목록 / 페이지네이션"></textarea>
     </div>
@@ -319,11 +339,14 @@
 
   <!-- 중앙: 생성 버튼 -->
   <div class="generate-col">
-    <button class="run-btn" id="run-btn" onclick="generate()" title="Description 생성" disabled>
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="9 18 15 12 9 6"/>
-      </svg>
-    </button>
+    <div class="run-btn-wrap show-tooltip" id="run-btn-wrap">
+      <button class="run-btn" id="run-btn" onclick="generate()" disabled>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="9 18 15 12 9 6"/>
+        </svg>
+      </button>
+      <div class="run-btn-tooltip">이미지를 업로드하고<br>컴포넌트 목록을 입력하세요.</div>
+    </div>
     <span class="run-btn-label">생성</span>
     <div class="error-msg" id="error-msg"></div>
   </div>
@@ -338,7 +361,7 @@
       </div>
     </div>
     <div class="output-box" id="output" contenteditable="true" spellcheck="false">
-      <div class="output-empty">생성 버튼을 누르면 여기에 결과가 나와요</div>
+      <div class="output-empty">생성 버튼을 누르면 디스크립션이 생성됩니다.</div>
     </div>
   </div>
 
@@ -557,7 +580,9 @@ document.addEventListener('paste', (e) => {
 function checkRunnable() {
   const hasImage = !!imageBase64;
   const hasComponents = !!document.getElementById('components').value.trim();
-  document.getElementById('run-btn').disabled = !(hasImage && hasComponents);
+  const canRun = hasImage && hasComponents;
+  document.getElementById('run-btn').disabled = !canRun;
+  document.getElementById('run-btn-wrap').classList.toggle('show-tooltip', !canRun);
 }
 
 document.getElementById('components').addEventListener('input', checkRunnable);
