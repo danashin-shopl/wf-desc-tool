@@ -428,10 +428,21 @@
     </div>
 
     <div class="card components-card">
-      <div class="card-label-row">
-        <label>Component List <span style="color:#e24b4a;">*</span></label>
+      <div style="display:flex; flex:1; min-height:0; gap:0;">
+        <div style="flex:1; display:flex; flex-direction:column; min-width:0;">
+          <div class="card-label-row">
+            <label>Component List <span style="color:#e24b4a;">*</span></label>
+          </div>
+          <textarea id="components" placeholder="1. 헤더 타이틀&#10;2. 검색 바&#10;3. 필터 버튼&#10;4. 결과 목록"></textarea>
+        </div>
+        <div style="width:0.5px; background:#e0dfd8; margin:0 12px; flex-shrink:0;"></div>
+        <div style="flex:1; display:flex; flex-direction:column; min-width:0;">
+          <div class="card-label-row">
+            <label>추가 지침</label>
+          </div>
+          <textarea id="instructions" placeholder="추가 지침이 있는 경우 입력하세요."></textarea>
+        </div>
       </div>
-      <textarea id="components" placeholder="예) 헤더 타이틀 / 검색 바 / 필터 버튼 / 결과 목록 / 페이지네이션"></textarea>
     </div>
   </div>
 
@@ -578,11 +589,11 @@ function downloadMd() {
 
 async function generate() {
   const apiKey = document.getElementById('api-key').value.trim();
-  const rawComponents = document.getElementById('components').value.trim();
-  const components = rawComponents.split('/').map(s => s.trim()).filter(s => s).map((s, i) => `${i + 1}. ${s}`).join('\n');
+  const components = document.getElementById('components').value.trim();
+  const instructions = document.getElementById('instructions').value.trim();
 
   if (!apiKey) { showError('API Key를 입력해줘.'); return; }
-  if (!rawComponents) { showError('컴포넌트 목록을 입력해줘.'); return; }
+  if (!components) { showError('컴포넌트 목록을 입력해줘.'); return; }
   if (!imageBase64) { showError('이미지를 업로드해줘.'); return; }
 
   hideError();
@@ -618,6 +629,7 @@ async function generate() {
   if (fieldData.policy) textParts.push(`## 공통 정책\n${fieldData.policy}`);
   if (fieldData.requirements) textParts.push(`## Policy\n${fieldData.requirements}`);
   textParts.push(`## 와이어프레임 컴포넌트 목록\n${components}`);
+  if (instructions) textParts.push(`## 추가 지침\n${instructions}`);
   textParts.push('위 와이어프레임 이미지의 번호 마커를 참고해서 각 컴포넌트의 Description을 작성해줘.');
   userContent.push({ type: 'text', text: textParts.join('\n\n') });
 
