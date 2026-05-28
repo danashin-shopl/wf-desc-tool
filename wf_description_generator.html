@@ -40,48 +40,79 @@
   }
   .api-key-wrap input::placeholder { color: #b4b2a9; }
 
-  /* 상단 입력 섹션 */
-  .input-section {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+  /* Context 아코디언 */
+  .context-section {
+    flex-shrink: 0;
     background: #fff;
     border-bottom: 0.5px solid #e0dfd8;
-    flex-shrink: 0;
+  }
+
+  .context-toggle {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 20px;
+    cursor: pointer; user-select: none;
+  }
+  .context-toggle:hover .context-label { color: #5f5e5a; }
+
+  .context-label {
+    font-size: 11px; font-weight: 600; color: #b4b2a9;
+    letter-spacing: 0.5px; text-transform: uppercase;
+    transition: color 0.15s;
+  }
+
+  .context-badges {
+    display: flex; gap: 5px;
+    transition: opacity 0.15s;
+    opacity: 0; pointer-events: none;
+  }
+  .context-section.collapsed .context-badges { opacity: 1; }
+
+  .context-badge {
+    display: flex; align-items: center; gap: 4px;
+    font-size: 10px; font-weight: 500; color: #b4b2a9;
+    padding: 2px 8px; border-radius: 20px;
+    border: 0.5px solid #e0dfd8;
+    text-transform: uppercase; letter-spacing: 0.3px;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .context-badge.loaded { border-color: #3daf6e; color: #3daf6e; }
+
+  .badge-dot {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: #d3d1c7; flex-shrink: 0;
+    transition: background 0.2s;
+  }
+  .context-badge.loaded .badge-dot { background: #3daf6e; }
+
+  .context-chevron {
+    margin-left: auto; color: #c8c6be; flex-shrink: 0;
+    transition: transform 0.22s ease;
+  }
+  .context-section.collapsed .context-chevron { transform: rotate(-90deg); }
+
+  .context-body {
+    max-height: 140px; overflow: hidden;
+    transition: max-height 0.25s ease, opacity 0.2s ease;
+    opacity: 1;
+  }
+  .context-section.collapsed .context-body { max-height: 0; opacity: 0; }
+
+  .context-cols {
+    display: grid; grid-template-columns: 1fr 1fr;
+    padding: 2px 0 12px;
+    border-top: 0.5px solid #f0efe9;
   }
 
   .input-col {
-    padding: 10px 16px 12px;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
+    padding: 10px 20px 0;
+    display: flex; flex-direction: column; gap: 6px;
   }
+  .input-col:first-child { border-right: 0.5px solid #f0efe9; }
 
   .input-col-label {
     display: flex; align-items: center; gap: 5px;
     font-size: 11px; font-weight: 600; color: #b4b2a9;
     letter-spacing: 0.5px; text-transform: uppercase;
-    cursor: pointer; user-select: none;
-  }
-  .input-col-label:hover { color: #888780; }
-
-  .input-col-chevron {
-    margin-left: auto;
-    color: #b4b2a9;
-    transition: transform 0.2s ease;
-    flex-shrink: 0;
-  }
-  .input-col.collapsed .input-col-chevron { transform: rotate(-90deg); }
-
-  .input-col-body {
-    display: flex; flex-direction: column; gap: 6px;
-    max-height: 120px;
-    overflow: hidden;
-    transition: max-height 0.2s ease, opacity 0.2s ease;
-    opacity: 1;
-  }
-  .input-col.collapsed .input-col-body {
-    max-height: 0;
-    opacity: 0;
   }
 
   .status-dot {
@@ -300,46 +331,59 @@
   </div>
 </div>
 
-<!-- 상단 입력 섹션 -->
-<div class="input-section">
+<!-- Context 아코디언 -->
+<div class="context-section" id="context-section">
 
-  <!-- 공통 정책: URL만 -->
-  <div class="input-col" id="common-col">
-    <div class="input-col-label" onclick="toggleCol('common-col')">
-      Common
-      <div class="status-dot" id="policy-dot">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-      </div>
-      <svg class="input-col-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+  <div class="context-toggle" onclick="toggleContext()">
+    <span class="context-label">Context</span>
+    <div class="context-badges">
+      <span class="context-badge" id="badge-common">
+        <span class="badge-dot"></span>Common
+      </span>
+      <span class="context-badge" id="badge-policy">
+        <span class="badge-dot"></span>Policy
+      </span>
     </div>
-    <div class="input-col-body">
-      <div class="url-row">
-        <input type="text" class="url-input" id="policy-url" placeholder="GitHub Raw URL 입력 후 Enter">
-        <button class="fetch-btn" id="policy-fetch-btn" onclick="fetchUrl('policy')">불러오기</button>
-      </div>
-    </div>
+    <svg class="context-chevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="6 9 12 15 18 9"/>
+    </svg>
   </div>
 
-  <!-- Policy: URL + CSV -->
-  <div class="input-col" id="policy-col">
-    <div class="input-col-label" onclick="toggleCol('policy-col')">
-      Policy
-      <div class="status-dot" id="requirements-dot">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+  <div class="context-body">
+    <div class="context-cols">
+
+      <div class="input-col">
+        <div class="input-col-label">
+          Common
+          <div class="status-dot" id="policy-dot">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+        </div>
+        <div class="url-row">
+          <input type="text" class="url-input" id="policy-url" placeholder="GitHub Raw URL 입력 후 Enter">
+          <button class="fetch-btn" id="policy-fetch-btn" onclick="fetchUrl('policy')">불러오기</button>
+        </div>
       </div>
-      <svg class="input-col-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-    </div>
-    <div class="input-col-body">
-      <div class="url-row">
-        <input type="text" class="url-input" id="requirements-url" placeholder="GitHub Raw URL 입력 후 Enter">
-        <button class="fetch-btn" id="requirements-fetch-btn" onclick="fetchUrl('requirements')">불러오기</button>
+
+      <div class="input-col">
+        <div class="input-col-label">
+          Policy
+          <div class="status-dot" id="requirements-dot">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+        </div>
+        <div class="url-row">
+          <input type="text" class="url-input" id="requirements-url" placeholder="GitHub Raw URL 입력 후 Enter">
+          <button class="fetch-btn" id="requirements-fetch-btn" onclick="fetchUrl('requirements')">불러오기</button>
+        </div>
+        <div class="csv-row">
+          <button class="csv-upload-btn" onclick="document.getElementById('csv-requirements').click()">↑ CSV 업로드</button>
+          <input type="file" id="csv-requirements" accept=".csv" style="display:none;" onchange="loadCsv(event,'requirements')">
+          <span class="csv-fname" id="requirements-fname"></span>
+          <button class="csv-clear-btn" id="requirements-csv-clear" style="display:none;" onclick="clearCsv('requirements')">✕</button>
+        </div>
       </div>
-      <div class="csv-row">
-        <button class="csv-upload-btn" onclick="document.getElementById('csv-requirements').click()">↑ CSV 업로드</button>
-        <input type="file" id="csv-requirements" accept=".csv" style="display:none;" onchange="loadCsv(event,'requirements')">
-        <span class="csv-fname" id="requirements-fname"></span>
-        <button class="csv-clear-btn" id="requirements-csv-clear" style="display:none;" onclick="clearCsv('requirements')">✕</button>
-      </div>
+
     </div>
   </div>
 
@@ -449,13 +493,16 @@ function clearCsv(field) {
   updateStatusDot(field);
 }
 
-function toggleCol(id) {
-  document.getElementById(id).classList.toggle('collapsed');
+function toggleContext() {
+  document.getElementById('context-section').classList.toggle('collapsed');
 }
 
 function updateStatusDot(field) {
+  const loaded = !!fieldData[field];
   const dotId = field === 'policy' ? 'policy-dot' : 'requirements-dot';
-  document.getElementById(dotId).classList.toggle('loaded', !!fieldData[field]);
+  const badgeId = field === 'policy' ? 'badge-common' : 'badge-policy';
+  document.getElementById(dotId).classList.toggle('loaded', loaded);
+  document.getElementById(badgeId).classList.toggle('loaded', loaded);
 }
 
 function handleImage(e) {
