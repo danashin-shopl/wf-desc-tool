@@ -537,10 +537,7 @@
     </div>
     <div class="modal-field">
       <label>경로 / 파일명</label>
-      <div style="display:flex; align-items:center; border:0.5px solid #d3d1c7; border-radius:6px; overflow:hidden; background:#fafaf8;">
-        <span style="padding:6px 8px 6px 10px; font-size:12px; color:#888780; background:#f0efe9; border-right:0.5px solid #d3d1c7; white-space:nowrap; flex-shrink:0;">common/</span>
-        <input type="text" id="gh-path" placeholder="FE/파일명.md" style="border:none; outline:none; background:transparent; flex:1; padding:6px 10px; font-size:12px; font-family:inherit; color:#1a1a18;">
-      </div>
+      <input type="text" id="gh-path" placeholder="common/FE/파일명.md">
     </div>
     <div class="modal-status" id="gh-status"></div>
     <div class="modal-btns">
@@ -872,8 +869,7 @@ async function uploadToGithub() {
   btn.textContent = '업로드 중...';
   setGhStatus('', false);
 
-  const fullPath = `common/${path}`;
-  const apiUrl = `https://api.github.com/repos/${repo}/contents/${fullPath}`;
+  const apiUrl = `https://api.github.com/repos/${repo}/contents/${path}`;
   const headers = {
     'Authorization': `Bearer ${token}`,
     'Accept': 'application/vnd.github+json',
@@ -887,7 +883,7 @@ async function uploadToGithub() {
     if (check.ok) { const d = await check.json(); sha = d.sha; }
 
     const body = {
-      message: `docs: ${fullPath.split('/').pop()}`,
+      message: `docs: ${path.split('/').pop()}`,
       content: btoa(unescape(encodeURIComponent(text)))
     };
     if (sha) body.sha = sha;
