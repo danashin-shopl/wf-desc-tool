@@ -9,8 +9,8 @@
 
   body {
     font-family: -apple-system, 'Pretendard', 'Apple SD Gothic Neo', sans-serif;
-    background: #f5f4f0;
-    color: #1a1a18;
+    background: #f6f6f6;
+    color: #333333;
     height: 100vh;
     overflow: hidden;
     display: flex;
@@ -23,28 +23,28 @@
     justify-content: space-between;
     padding: 14px 24px;
     background: #fff;
-    border-bottom: 0.5px solid #e0dfd8;
+    border-bottom: 0.5px solid #eaeaea;
     flex-shrink: 0;
   }
   .top-bar h1 { font-size: 15px; font-weight: 600; letter-spacing: -0.3px; }
 
   .api-key-wrap {
     display: flex; align-items: center; gap: 8px;
-    background: #f5f4f0; border: 0.5px solid #d3d1c7;
+    background: #f6f6f6; border: 0.5px solid #cccccc;
     border-radius: 8px; padding: 6px 12px;
   }
-  .api-key-wrap label { font-size: 11px; color: #888780; font-weight: 500; white-space: nowrap; }
+  .api-key-wrap label { font-size: 11px; color: #9a9a9a; font-weight: 500; white-space: nowrap; }
   .api-key-wrap input {
     border: none; outline: none; font-size: 12px;
-    font-family: inherit; color: #1a1a18; background: transparent; width: 220px;
+    font-family: inherit; color: #333333; background: transparent; width: 220px;
   }
-  .api-key-wrap input::placeholder { color: #b4b2a9; }
+  .api-key-wrap input::placeholder { color: #bbbbbb; }
 
   /* Context 아코디언 */
   .context-section {
     flex-shrink: 0;
     background: #fff;
-    border-bottom: 0.5px solid #e0dfd8;
+    border-bottom: 0.5px solid #eaeaea;
   }
 
   .context-toggle {
@@ -52,10 +52,10 @@
     padding: 9px 20px;
     cursor: pointer; user-select: none;
   }
-  .context-toggle:hover .context-label { color: #5f5e5a; }
+  .context-toggle:hover .context-label { color: #555555; }
 
   .context-label {
-    font-size: 12px; font-weight: 700; color: #1a1a18;
+    font-size: 12px; font-weight: 700; color: #333333;
     letter-spacing: 0.3px; text-transform: uppercase;
     transition: color 0.15s;
   }
@@ -69,9 +69,9 @@
 
   .context-badge {
     display: flex; align-items: center; gap: 4px;
-    font-size: 10px; font-weight: 500; color: #b4b2a9;
+    font-size: 10px; font-weight: 500; color: #bbbbbb;
     padding: 2px 8px; border-radius: 20px;
-    border: 0.5px solid #e0dfd8;
+    border: 0.5px solid #eaeaea;
     text-transform: uppercase; letter-spacing: 0.3px;
     transition: border-color 0.2s, color 0.2s;
   }
@@ -79,13 +79,13 @@
 
   .badge-dot {
     width: 5px; height: 5px; border-radius: 50%;
-    background: #d3d1c7; flex-shrink: 0;
+    background: #cccccc; flex-shrink: 0;
     transition: background 0.2s;
   }
   .context-badge.loaded .badge-dot { background: #3daf6e; }
 
   .context-chevron {
-    margin-left: auto; color: #c8c6be; flex-shrink: 0;
+    margin-left: auto; color: #cccccc; flex-shrink: 0;
     transition: transform 0.22s ease;
   }
   .context-section.collapsed .context-chevron { transform: rotate(-90deg); }
@@ -113,21 +113,21 @@
   /* Policy URL/CSV 모드 토글 */
   .mode-toggle {
     display: flex;
-    border: 0.5px solid #d3d1c7;
+    border: 0.5px solid #cccccc;
     border-radius: 6px; overflow: hidden;
     width: fit-content;
   }
   .mode-btn {
     padding: 3px 11px; font-size: 11px; font-family: inherit;
-    font-weight: 500; border: none; background: #f5f4f0;
-    color: #b4b2a9; cursor: pointer; transition: background 0.12s, color 0.12s;
+    font-weight: 500; border: none; background: #f6f6f6;
+    color: #bbbbbb; cursor: pointer; transition: background 0.12s, color 0.12s;
   }
-  .mode-btn + .mode-btn { border-left: 0.5px solid #d3d1c7; }
-  .mode-btn.active { background: #1a1a18; color: #f5f4f0; }
+  .mode-btn + .mode-btn { border-left: 0.5px solid #cccccc; }
+  .mode-btn.active { background: #3299fe; color: #fff; }
 
   .input-col-label {
     display: flex; align-items: center; gap: 5px;
-    font-size: 11px; font-weight: 600; color: #b4b2a9;
+    font-size: 11px; font-weight: 600; color: #bbbbbb;
     letter-spacing: 0.5px; text-transform: uppercase;
     overflow: hidden;
   }
@@ -141,40 +141,40 @@
 
   .url-row { display: flex; gap: 6px; align-items: center; height: 30px; }
   .url-input {
-    flex: 1; border: 0.5px solid #d3d1c7; border-radius: 6px;
+    flex: 1; border: 0.5px solid #cccccc; border-radius: 6px;
     padding: 0 10px; font-size: 12px; font-family: inherit;
-    color: #1a1a18; background: #fafaf8; outline: none;
+    color: #333333; background: #f9f9f9; outline: none;
     height: 30px;
   }
-  .url-input:focus { border-color: #888780; background: #fff; }
-  .url-input::placeholder { color: #b4b2a9; }
+  .url-input:focus { border-color: #9a9a9a; background: #fff; }
+  .url-input::placeholder { color: #bbbbbb; }
 
   .fetch-btn {
     font-size: 11px; font-family: inherit; padding: 0 10px;
-    background: #f5f4f0; border: 0.5px solid #d3d1c7; border-radius: 5px;
-    cursor: pointer; color: #5f5e5a; white-space: nowrap; flex-shrink: 0;
+    background: #f6f6f6; border: 0.5px solid #cccccc; border-radius: 5px;
+    cursor: pointer; color: #555555; white-space: nowrap; flex-shrink: 0;
     transition: background 0.1s; height: 30px;
   }
-  .fetch-btn:hover { background: #e8e7e3; }
+  .fetch-btn:hover { background: #eaeaea; }
   .fetch-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
 
   .csv-row { display: flex; gap: 6px; align-items: center; }
   .csv-upload-btn {
     font-size: 11px; font-family: inherit; padding: 4px 10px;
-    background: #f5f4f0; border: 0.5px solid #d3d1c7; border-radius: 5px;
-    cursor: pointer; color: #5f5e5a; flex-shrink: 0; transition: background 0.1s;
+    background: #f6f6f6; border: 0.5px solid #cccccc; border-radius: 5px;
+    cursor: pointer; color: #555555; flex-shrink: 0; transition: background 0.1s;
   }
-  .csv-upload-btn:hover { background: #e8e7e3; }
+  .csv-upload-btn:hover { background: #eaeaea; }
   .csv-fname {
-    font-size: 11px; color: #888780; flex: 1;
+    font-size: 11px; color: #9a9a9a; flex: 1;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
   .csv-clear-btn {
     background: none; border: none; cursor: pointer;
-    font-size: 12px; color: #b4b2a9; padding: 0; line-height: 1; flex-shrink: 0;
+    font-size: 12px; color: #bbbbbb; padding: 0; line-height: 1; flex-shrink: 0;
   }
-  .csv-clear-btn:hover { color: #5f5e5a; }
+  .csv-clear-btn:hover { color: #555555; }
 
   /* 메인 3단 */
   .main {
@@ -193,7 +193,7 @@
   }
 
   .col-title {
-    font-size: 12px; font-weight: 700; color: #1a1a18;
+    font-size: 12px; font-weight: 700; color: #333333;
     letter-spacing: 0.3px; text-transform: uppercase; flex-shrink: 0;
   }
 
@@ -211,8 +211,8 @@
   .run-btn {
     width: 40px; height: 40px;
     border-radius: 50%;
-    background: #1a1a18;
-    color: #f5f4f0;
+    background: #3299fe;
+    color: #fff;
     border: none;
     cursor: pointer;
     display: flex; align-items: center; justify-content: center;
@@ -224,7 +224,7 @@
   .run-btn:disabled { opacity: 0.3; cursor: not-allowed; transform: none; }
 
   .run-btn-label {
-    font-size: 10px; color: #b4b2a9; font-weight: 500;
+    font-size: 10px; color: #bbbbbb; font-weight: 500;
     letter-spacing: 0.3px; text-align: center;
   }
 
@@ -234,7 +234,7 @@
     position: absolute;
     left: 50%; transform: translateX(-50%);
     bottom: calc(100% + 8px);
-    background: #1a1a18; color: #f5f4f0;
+    background: #3299fe; color: #fff;
     font-size: 11px; line-height: 1.5;
     padding: 6px 10px; border-radius: 7px;
     white-space: nowrap; pointer-events: none; z-index: 100;
@@ -244,7 +244,7 @@
     content: '';
     position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
     border: 5px solid transparent;
-    border-top-color: #1a1a18;
+    border-top-color: #3299fe;
   }
   .run-btn-wrap.show-tooltip:hover .run-btn-tooltip { display: block; }
 
@@ -256,7 +256,7 @@
 
   .card {
     background: #fff; border-radius: 10px;
-    border: 0.5px solid #e0dfd8; padding: 12px 14px;
+    border: 0.5px solid #eaeaea; padding: 12px 14px;
     display: flex; flex-direction: column;
     min-height: 0; overflow: hidden;
   }
@@ -265,50 +265,50 @@
     display: flex; align-items: center;
     justify-content: space-between; margin-bottom: 6px; flex-shrink: 0;
   }
-  .card-label-row label { font-size: 11px; color: #888780; font-weight: 500; }
+  .card-label-row label { font-size: 11px; color: #9a9a9a; font-weight: 500; }
 
   textarea {
     width: 100%; border: none; outline: none; resize: none;
-    font-size: 12px; font-family: inherit; color: #1a1a18;
+    font-size: 12px; font-family: inherit; color: #333333;
     background: transparent; line-height: 1.7;
     flex: 1; min-height: 40px; overflow-y: auto;
   }
-  textarea::placeholder { color: #b4b2a9; }
+  textarea::placeholder { color: #bbbbbb; }
 
   /* 이미지 영역 — 더 큰 비율 */
   .upload-area {
-    border-radius: 10px; border: 1.5px dashed #d3d1c7;
+    border-radius: 10px; border: 1.5px dashed #cccccc;
     text-align: center; cursor: pointer;
     transition: background 0.15s, border-color 0.15s;
     flex: 3; min-height: 140px;
     display: flex; flex-direction: column;
     align-items: center; justify-content: center; background: #fff;
   }
-  .upload-area:hover { background: #f9f8f4; border-color: #b4b2a9; }
-  .upload-area.drag-over { background: #eef5fb; border-color: #378add; }
-  .upload-area p { font-size: 12px; color: #888780; margin-top: 4px; }
-  .upload-area span { font-size: 11px; color: #b4b2a9; }
+  .upload-area:hover { background: #f2f2f2; border-color: #bbbbbb; }
+  .upload-area.drag-over { background: #ddecfa; border-color: #3299fe; }
+  .upload-area p { font-size: 12px; color: #9a9a9a; margin-top: 4px; }
+  .upload-area span { font-size: 11px; color: #bbbbbb; }
   .file-select-btn {
     margin-top: 8px; font-size: 11px; font-family: inherit;
-    padding: 4px 12px; background: #f5f4f0;
-    border: 0.5px solid #d3d1c7; border-radius: 5px;
-    cursor: pointer; color: #5f5e5a; transition: background 0.1s;
+    padding: 4px 12px; background: #f6f6f6;
+    border: 0.5px solid #cccccc; border-radius: 5px;
+    cursor: pointer; color: #555555; transition: background 0.1s;
   }
-  .file-select-btn:hover { background: #e8e7e3; }
+  .file-select-btn:hover { background: #eaeaea; }
 
   .preview-wrap { display: none; position: relative; flex: 3; min-height: 140px; }
   .preview-wrap img {
     width: 100%; height: 100%; object-fit: contain;
-    border-radius: 10px; border: 0.5px solid #e0dfd8; display: block;
+    border-radius: 10px; border: 0.5px solid #eaeaea; display: block;
   }
   .remove-btn {
     position: absolute; top: 6px; right: 6px;
-    background: #fff; border: 0.5px solid #d3d1c7; border-radius: 50%;
+    background: #fff; border: 0.5px solid #cccccc; border-radius: 50%;
     width: 24px; height: 24px; cursor: pointer; font-size: 13px;
     display: flex; align-items: center; justify-content: center;
-    color: #5f5e5a; transition: background 0.1s;
+    color: #555555; transition: background 0.1s;
   }
-  .remove-btn:hover { background: #f5f4f0; }
+  .remove-btn:hover { background: #f6f6f6; }
 
   /* 컴포넌트 목록 — 더 작은 비율 */
   .components-card { flex: 1; min-height: 80px; }
@@ -321,47 +321,47 @@
 
   .copy-btn {
     font-size: 11px; font-family: inherit; padding: 3px 10px;
-    background: #fff; border: 0.5px solid #d3d1c7; border-radius: 5px;
-    cursor: pointer; color: #5f5e5a; transition: background 0.1s;
+    background: #fff; border: 0.5px solid #cccccc; border-radius: 5px;
+    cursor: pointer; color: #555555; transition: background 0.1s;
   }
-  .copy-btn:hover { background: #f5f4f0; }
+  .copy-btn:hover { background: #f6f6f6; }
 
   .download-btn {
     font-size: 11px; font-family: inherit; padding: 3px 10px;
-    background: #1a1a18; border: 0.5px solid #1a1a18; border-radius: 5px;
-    cursor: pointer; color: #f5f4f0; transition: opacity 0.1s;
+    background: #3299fe; border: 0.5px solid #3299fe; border-radius: 5px;
+    cursor: pointer; color: #fff; transition: opacity 0.1s;
   }
   .download-btn:hover { opacity: 0.8; }
 
   .output-box {
-    background: #fff; border-radius: 10px; border: 0.5px solid #e0dfd8;
+    background: #fff; border-radius: 10px; border: 0.5px solid #eaeaea;
     padding: 14px; font-size: 12px; line-height: 1.9;
-    white-space: pre-wrap; color: #1a1a18; flex: 1; overflow-y: auto;
+    white-space: pre-wrap; color: #333333; flex: 1; overflow-y: auto;
     outline: none; cursor: text; min-height: 0;
   }
-  .output-box:focus { border-color: #b4b2a9; }
+  .output-box:focus { border-color: #bbbbbb; }
   .output-empty {
     display: flex; align-items: center; justify-content: center;
-    height: 100%; color: #b4b2a9; font-size: 12px;
+    height: 100%; color: #bbbbbb; font-size: 12px;
   }
 
   /* 생성기 노트 */
   .notes-box {
     flex-shrink: 0;
     border-radius: 10px;
-    border: 0.5px solid #e0dfd8;
-    border-left: 2.5px solid #c8c6be;
-    background: #fdfcf7;
+    border: 0.5px solid #eaeaea;
+    border-left: 2.5px solid #82c1ff;
+    background: #f9f9f9;
     padding: 10px 14px;
     display: none; flex-direction: column; gap: 6px;
   }
   .notes-box.visible { display: flex; }
   .notes-label {
-    font-size: 10px; font-weight: 700; color: #b4b2a9;
+    font-size: 10px; font-weight: 700; color: #bbbbbb;
     letter-spacing: 0.5px; text-transform: uppercase;
   }
   .notes-content {
-    font-size: 11.5px; line-height: 1.75; color: #5f5e5a;
+    font-size: 11.5px; line-height: 1.75; color: #555555;
     white-space: pre-wrap; max-height: 160px; overflow-y: auto;
   }
 
@@ -378,16 +378,16 @@
     display: flex; flex-direction: column; gap: 14px;
     box-shadow: 0 8px 32px rgba(0,0,0,0.16);
   }
-  .modal-title { font-size: 13px; font-weight: 700; color: #1a1a18; }
+  .modal-title { font-size: 13px; font-weight: 700; color: #333333; }
   .modal-field { display: flex; flex-direction: column; gap: 5px; }
-  .modal-field label { font-size: 11px; color: #888780; font-weight: 500; text-transform: uppercase; letter-spacing: 0.3px; }
+  .modal-field label { font-size: 11px; color: #9a9a9a; font-weight: 500; text-transform: uppercase; letter-spacing: 0.3px; }
   .modal-field input {
-    border: 0.5px solid #d3d1c7; border-radius: 6px;
+    border: 0.5px solid #cccccc; border-radius: 6px;
     padding: 6px 10px; font-size: 12px; font-family: inherit;
-    color: #1a1a18; background: #fafaf8; outline: none;
+    color: #333333; background: #f9f9f9; outline: none;
   }
-  .modal-field input:focus { border-color: #888780; background: #fff; }
-  .modal-field input::placeholder { color: #b4b2a9; }
+  .modal-field input:focus { border-color: #9a9a9a; background: #fff; }
+  .modal-field input::placeholder { color: #bbbbbb; }
   .modal-status {
     font-size: 11px; color: #3daf6e; display: none;
     padding: 6px 10px; border-radius: 6px; background: #f0fbf5;
@@ -396,14 +396,14 @@
   .modal-btns { display: flex; gap: 8px; justify-content: flex-end; }
   .modal-cancel {
     font-size: 12px; font-family: inherit; padding: 6px 14px;
-    background: #f5f4f0; border: 0.5px solid #d3d1c7; border-radius: 6px;
-    cursor: pointer; color: #5f5e5a; transition: background 0.1s;
+    background: #f6f6f6; border: 0.5px solid #cccccc; border-radius: 6px;
+    cursor: pointer; color: #555555; transition: background 0.1s;
   }
-  .modal-cancel:hover { background: #e8e7e3; }
+  .modal-cancel:hover { background: #eaeaea; }
   .modal-confirm {
     font-size: 12px; font-family: inherit; padding: 6px 14px;
-    background: #1a1a18; border: none; border-radius: 6px;
-    cursor: pointer; color: #f5f4f0; transition: opacity 0.1s;
+    background: #3299fe; border: none; border-radius: 6px;
+    cursor: pointer; color: #fff; transition: opacity 0.1s;
   }
   .modal-confirm:hover { opacity: 0.8; }
   .modal-confirm:disabled { opacity: 0.4; cursor: not-allowed; }
@@ -497,7 +497,7 @@
     <div class="col-title">Wireframe <span style="color:#e24b4a;">*</span></div>
 
     <div class="upload-area" id="upload-area" tabindex="0">
-      <div style="font-size:22px; color:#b4b2a9;">↑</div>
+      <div style="font-size:22px; color:#bbbbbb;">↑</div>
       <p>Drag&amp;Drop / Ctrl+V</p>
       <button class="file-select-btn" onclick="document.getElementById('img-input').click()">파일 선택</button>
       <input type="file" id="img-input" accept="image/*" style="display:none;" onchange="handleImage(event)">
