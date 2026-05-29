@@ -333,6 +333,49 @@
     display: flex; align-items: center; justify-content: center;
     height: 100%; color: #b4b2a9; font-size: 12px;
   }
+
+  /* GitHub 업로드 모달 */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.35); z-index: 1000;
+    align-items: center; justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: #fff; border-radius: 12px;
+    padding: 22px 24px; width: 360px;
+    display: flex; flex-direction: column; gap: 14px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.16);
+  }
+  .modal-title { font-size: 13px; font-weight: 700; color: #1a1a18; }
+  .modal-field { display: flex; flex-direction: column; gap: 5px; }
+  .modal-field label { font-size: 11px; color: #888780; font-weight: 500; text-transform: uppercase; letter-spacing: 0.3px; }
+  .modal-field input {
+    border: 0.5px solid #d3d1c7; border-radius: 6px;
+    padding: 6px 10px; font-size: 12px; font-family: inherit;
+    color: #1a1a18; background: #fafaf8; outline: none;
+  }
+  .modal-field input:focus { border-color: #888780; background: #fff; }
+  .modal-field input::placeholder { color: #b4b2a9; }
+  .modal-status {
+    font-size: 11px; color: #3daf6e; display: none;
+    padding: 6px 10px; border-radius: 6px; background: #f0fbf5;
+  }
+  .modal-status.error { color: #a32d2d; background: #fdf1f1; }
+  .modal-btns { display: flex; gap: 8px; justify-content: flex-end; }
+  .modal-cancel {
+    font-size: 12px; font-family: inherit; padding: 6px 14px;
+    background: #f5f4f0; border: 0.5px solid #d3d1c7; border-radius: 6px;
+    cursor: pointer; color: #5f5e5a; transition: background 0.1s;
+  }
+  .modal-cancel:hover { background: #e8e7e3; }
+  .modal-confirm {
+    font-size: 12px; font-family: inherit; padding: 6px 14px;
+    background: #1a1a18; border: none; border-radius: 6px;
+    cursor: pointer; color: #f5f4f0; transition: opacity 0.1s;
+  }
+  .modal-confirm:hover { opacity: 0.8; }
+  .modal-confirm:disabled { opacity: 0.4; cursor: not-allowed; }
 </style>
 </head>
 <body>
@@ -469,6 +512,7 @@
       <span class="col-title" style="margin-bottom:0;">Description</span>
       <div class="btn-group">
         <button class="copy-btn" onclick="copyResult()">복사</button>
+        <button class="copy-btn" onclick="openGhModal()">↑ GitHub</button>
         <button class="download-btn" onclick="downloadMd()">md 다운로드</button>
       </div>
     </div>
@@ -477,6 +521,30 @@
     </div>
   </div>
 
+</div>
+
+<!-- GitHub 업로드 모달 -->
+<div class="modal-overlay" id="gh-modal" onclick="if(event.target===this)closeGhModal()">
+  <div class="modal">
+    <div class="modal-title">↑ GitHub에 업로드</div>
+    <div class="modal-field">
+      <label>GitHub Token (Contents: Write)</label>
+      <input type="password" id="gh-token" placeholder="github_pat_..." autocomplete="off">
+    </div>
+    <div class="modal-field">
+      <label>Repository</label>
+      <input type="text" id="gh-repo" placeholder="owner/repo (예: danashin-shopl/shopl-pm)">
+    </div>
+    <div class="modal-field">
+      <label>경로 / 파일명</label>
+      <input type="text" id="gh-path" placeholder="Common/FE/파일명.md">
+    </div>
+    <div class="modal-status" id="gh-status"></div>
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="closeGhModal()">취소</button>
+      <button class="modal-confirm" id="gh-upload-btn" onclick="uploadToGithub()">업로드</button>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -760,6 +828,85 @@ function checkRunnable() {
 }
 
 document.getElementById('components').addEventListener('input', checkRunnable);
+
+// ── GitHub 업로드 ──────────────────────────────────────────────
+function openGhModal() {
+  const text = document.getElementById('output').innerText;
+  if (!text.trim() || text.includes('생성 버튼')) return;
+
+  document.getElementById('gh-token').value = localStorage.getItem('github_upload_pat') || '';
+  document.getElementById('gh-repo').value  = localStorage.getItem('github_upload_repo') || '';
+  document.getElementById('gh-path').value  = localStorage.getItem('github_upload_path') || '';
+
+  const status = document.getElementById('gh-status');
+  status.style.display = 'none';
+  status.className = 'modal-status';
+  document.getElementById('gh-upload-btn').disabled = false;
+  document.getElementById('gh-upload-btn').textContent = '업로드';
+  document.getElementById('gh-modal').classList.add('open');
+}
+
+function closeGhModal() {
+  document.getElementById('gh-modal').classList.remove('open');
+}
+
+async function uploadToGithub() {
+  const token = document.getElementById('gh-token').value.trim();
+  const repo  = document.getElementById('gh-repo').value.trim();
+  const path  = document.getElementById('gh-path').value.trim();
+  const text  = document.getElementById('output').innerText;
+
+  if (!token || !repo || !path) {
+    setGhStatus('Token, Repository, 경로를 모두 입력해줘.', true); return;
+  }
+
+  localStorage.setItem('github_upload_pat',  token);
+  localStorage.setItem('github_upload_repo', repo);
+  localStorage.setItem('github_upload_path', path);
+
+  const btn = document.getElementById('gh-upload-btn');
+  btn.disabled = true;
+  btn.textContent = '업로드 중...';
+  setGhStatus('', false);
+
+  const apiUrl = `https://api.github.com/repos/${repo}/contents/${path}`;
+  const headers = {
+    'Authorization': `Bearer ${token}`,
+    'Accept': 'application/vnd.github+json',
+    'Content-Type': 'application/json'
+  };
+
+  try {
+    // 기존 파일 SHA 조회 (업데이트 시 필요)
+    let sha = null;
+    const check = await fetch(apiUrl, { headers });
+    if (check.ok) { const d = await check.json(); sha = d.sha; }
+
+    const body = {
+      message: `docs: ${path.split('/').pop()}`,
+      content: btoa(unescape(encodeURIComponent(text)))
+    };
+    if (sha) body.sha = sha;
+
+    const res = await fetch(apiUrl, { method: 'PUT', headers, body: JSON.stringify(body) });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'GitHub API 오류');
+
+    setGhStatus(sha ? '파일 업데이트 완료 ✓' : '업로드 완료 ✓', false);
+    btn.textContent = '완료';
+  } catch (err) {
+    setGhStatus(`실패: ${err.message}`, true);
+    btn.disabled = false;
+    btn.textContent = '업로드';
+  }
+}
+
+function setGhStatus(msg, isError) {
+  const el = document.getElementById('gh-status');
+  el.textContent = msg;
+  el.className = 'modal-status' + (isError ? ' error' : '');
+  el.style.display = msg ? 'block' : 'none';
+}
 
 // 초기 모델 상태 반영 (Gemini 기본)
 document.getElementById('api-key-wrap').style.visibility = 'hidden';
