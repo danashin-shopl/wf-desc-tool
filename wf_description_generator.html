@@ -931,7 +931,8 @@ async function uploadToGithub() {
   btn.textContent = '업로드 중...';
   setGhStatus('', false);
 
-  const apiUrl = `https://api.github.com/repos/${repo}/contents/${path}`;
+  const encodedPath = path.split('/').map(encodeURIComponent).join('/');
+  const apiUrl = `https://api.github.com/repos/${repo}/contents/${encodedPath}`;
   const headers = {
     'Authorization': `Bearer ${token}`,
     'Accept': 'application/vnd.github+json',
