@@ -139,17 +139,18 @@
   .url-row { display: flex; gap: 6px; align-items: center; height: 30px; }
   .url-input {
     flex: 1; border: 0.5px solid #d3d1c7; border-radius: 6px;
-    padding: 5px 10px; font-size: 12px; font-family: inherit;
+    padding: 0 10px; font-size: 12px; font-family: inherit;
     color: #1a1a18; background: #fafaf8; outline: none;
+    height: 30px;
   }
   .url-input:focus { border-color: #888780; background: #fff; }
   .url-input::placeholder { color: #b4b2a9; }
 
   .fetch-btn {
-    font-size: 11px; font-family: inherit; padding: 4px 10px;
+    font-size: 11px; font-family: inherit; padding: 0 10px;
     background: #f5f4f0; border: 0.5px solid #d3d1c7; border-radius: 5px;
     cursor: pointer; color: #5f5e5a; white-space: nowrap; flex-shrink: 0;
-    transition: background 0.1s;
+    transition: background 0.1s; height: 30px;
   }
   .fetch-btn:hover { background: #e8e7e3; }
   .fetch-btn:disabled { opacity: 0.5; cursor: not-allowed; }
