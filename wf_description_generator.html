@@ -22,23 +22,30 @@
     align-items: center;
     justify-content: space-between;
     padding: 14px 24px;
-    background: #fff;
-    border-bottom: 0.5px solid #eaeaea;
+    background: #000;
+    border-bottom: none;
     flex-shrink: 0;
   }
-  .top-bar h1 { font-size: 15px; font-weight: 600; letter-spacing: -0.3px; }
+  .top-bar h1 { font-size: 16px; font-weight: 700; letter-spacing: -0.4px; color: #fff; }
+  .top-subtitle { font-size: 11px; color: #9a9a9a; font-weight: 400; margin-top: 2px; }
 
   .api-key-wrap {
     display: flex; align-items: center; gap: 8px;
-    background: #f6f6f6; border: 0.5px solid #cccccc;
+    background: rgba(255,255,255,0.08); border: 0.5px solid rgba(255,255,255,0.18);
     border-radius: 8px; padding: 6px 12px;
   }
   .api-key-wrap label { font-size: 11px; color: #9a9a9a; font-weight: 500; white-space: nowrap; }
   .api-key-wrap input {
     border: none; outline: none; font-size: 12px;
-    font-family: inherit; color: #333333; background: transparent; width: 220px;
+    font-family: inherit; color: #fff; background: transparent; width: 220px;
   }
-  .api-key-wrap input::placeholder { color: #bbbbbb; }
+  .api-key-wrap input::placeholder { color: rgba(255,255,255,0.25); }
+
+  /* 헤더 내 모델 토글 (다크 배경 전용) */
+  .top-bar .mode-toggle { border-color: rgba(255,255,255,0.18); }
+  .top-bar .mode-btn { background: transparent; color: #9a9a9a; }
+  .top-bar .mode-btn + .mode-btn { border-left-color: rgba(255,255,255,0.18); }
+  .top-bar .mode-btn.active { background: #3299fe; color: #fff; }
 
   /* Context 아코디언 */
   .context-section {
@@ -412,7 +419,10 @@
 <body>
 
 <div class="top-bar">
-  <h1>Description 다나와! 와이어프레임 Description 자동 생성기</h1>
+  <div>
+    <h1>Description 다나와!</h1>
+    <div class="top-subtitle">Wireframe Description 자동 생성기</div>
+  </div>
   <div style="display:flex; align-items:center; gap:10px;">
     <div class="api-key-wrap" id="api-key-wrap">
       <label for="api-key">API Key</label>
