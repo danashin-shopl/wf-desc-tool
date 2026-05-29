@@ -436,7 +436,7 @@
           </div>
           <div class="mode-toggle" style="margin-left:auto;">
             <button class="mode-btn active" id="policy-mode-url" onclick="switchPolicyMode('url')">URL</button>
-            <button class="mode-btn" id="policy-mode-csv" onclick="switchPolicyMode('csv')">CSV</button>
+            <button class="mode-btn" id="policy-mode-csv" onclick="switchPolicyMode('csv')">MD</button>
           </div>
         </div>
         <div style="height:30px; display:flex; align-items:center; overflow:hidden;">
@@ -445,8 +445,8 @@
             <button class="fetch-btn" id="requirements-fetch-btn" onclick="fetchUrl('requirements')">불러오기</button>
           </div>
           <div class="csv-row" id="policy-csv-row" style="display:none; width:100%;">
-            <button class="csv-upload-btn" onclick="document.getElementById('csv-requirements').click()">↑ CSV 업로드</button>
-            <input type="file" id="csv-requirements" accept=".csv" style="display:none;" onchange="loadCsv(event,'requirements')">
+            <button class="csv-upload-btn" onclick="document.getElementById('csv-requirements').click()">↑ MD 업로드</button>
+            <input type="file" id="csv-requirements" accept=".md,.markdown" style="display:none;" onchange="loadCsv(event,'requirements')">
             <span class="csv-fname" id="requirements-fname"></span>
             <button class="csv-clear-btn" id="requirements-csv-clear" style="display:none;" onclick="clearCsv('requirements')">✕</button>
           </div>
@@ -594,8 +594,7 @@ function loadCsv(e, targetId) {
   if (!file) return;
   const reader = new FileReader();
   reader.onload = (ev) => {
-    const lines = ev.target.result.split('\n').map(l => l.replace(/^"|"$/g, '').trim()).filter(l => l);
-    fieldData[targetId] = lines.join('\n');
+    fieldData[targetId] = ev.target.result;
     document.getElementById(`${targetId}-fname`).textContent = file.name;
     document.getElementById(`${targetId}-csv-clear`).style.display = 'inline';
     updateStatusDot(targetId);
