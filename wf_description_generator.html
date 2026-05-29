@@ -500,7 +500,7 @@
           <polyline points="9 18 15 12 9 6"/>
         </svg>
       </button>
-      <div class="run-btn-tooltip">이미지를 업로드하고<br>컴포넌트 목록을 입력하세요.</div>
+      <div class="run-btn-tooltip">이미지를 업로드하세요.</div>
     </div>
     <span class="run-btn-label">생성</span>
     <div class="error-msg" id="error-msg"></div>
@@ -757,7 +757,6 @@ async function generate() {
   const instructions = document.getElementById('instructions').value.trim();
 
   if (currentModel === 'claude' && !apiKey) { showError('API Key를 입력해줘.'); return; }
-  if (!components) { showError('컴포넌트 목록을 입력해줘.'); return; }
   if (!imageBase64) { showError('이미지를 업로드해줘.'); return; }
 
   hideError();
@@ -821,13 +820,9 @@ document.addEventListener('paste', (e) => {
 // 생성 버튼 활성화 조건 체크
 function checkRunnable() {
   const hasImage = !!imageBase64;
-  const hasComponents = !!document.getElementById('components').value.trim();
-  const canRun = hasImage && hasComponents;
-  document.getElementById('run-btn').disabled = !canRun;
-  document.getElementById('run-btn-wrap').classList.toggle('show-tooltip', !canRun);
+  document.getElementById('run-btn').disabled = !hasImage;
+  document.getElementById('run-btn-wrap').classList.toggle('show-tooltip', !hasImage);
 }
-
-document.getElementById('components').addEventListener('input', checkRunnable);
 
 // ── GitHub 업로드 ──────────────────────────────────────────────
 function openGhModal() {
