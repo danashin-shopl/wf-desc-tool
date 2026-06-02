@@ -953,7 +953,8 @@ async function uploadToGithub() {
 
     const res = await fetch(apiUrl, { method: 'PUT', headers, body: JSON.stringify(body) });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.message || 'GitHub API 오류');
+    console.log('GitHub API 응답:', res.status, JSON.stringify(data));
+    if (!res.ok) throw new Error(`${res.status} ${data.message}${data.errors ? ' / ' + JSON.stringify(data.errors) : ''}`);
 
     setGhStatus(sha ? '파일 업데이트 완료 ✓' : '업로드 완료 ✓', false);
     btn.textContent = '완료';
