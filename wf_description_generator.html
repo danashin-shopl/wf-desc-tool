@@ -545,10 +545,9 @@
         </div>
         <div class="url-row">
           <input type="text" class="url-input" id="common-path" placeholder="경로/파일명.md">
-          <button class="browse-btn" onclick="openBrowser('common')" title="파일 탐색">
+          <button class="browse-btn" id="common-browse-btn" onclick="openBrowser('common')" title="파일 탐색">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
           </button>
-          <button class="fetch-btn" id="common-fetch-btn" onclick="fetchGithubFile('common')">불러오기</button>
         </div>
       </div>
 
@@ -562,10 +561,9 @@
         </div>
         <div class="url-row">
           <input type="text" class="url-input" id="policy-path" placeholder="경로/기능명.md">
-          <button class="browse-btn" onclick="openBrowser('policy')" title="파일 탐색">
+          <button class="browse-btn" id="policy-browse-btn" onclick="openBrowser('policy')" title="파일 탐색">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
           </button>
-          <button class="fetch-btn" id="policy-fetch-btn" onclick="fetchGithubFile('policy')">불러오기</button>
         </div>
       </div>
 
@@ -579,10 +577,9 @@
         </div>
         <div class="url-row">
           <input type="text" class="url-input" id="guide-path" placeholder="경로/작성지침.md">
-          <button class="browse-btn" onclick="openBrowser('guide')" title="파일 탐색">
+          <button class="browse-btn" id="guide-browse-btn" onclick="openBrowser('guide')" title="파일 탐색">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
           </button>
-          <button class="fetch-btn" id="guide-fetch-btn" onclick="fetchGithubFile('guide')">불러오기</button>
         </div>
       </div>
 
@@ -793,8 +790,10 @@ async function loadBrowserDir(dirPath) {
   const githubRepo = localStorage.getItem('github_repo');
 
   try {
-    const encodedPath = dirPath ? dirPath.split('/').map(encodeURIComponent).join('/') : '';
-    const apiUrl = `https://api.github.com/repos/${githubRepo}/contents/${encodedPath}`;
+    const base = `https://api.github.com/repos/${githubRepo}/contents`;
+    const apiUrl = dirPath
+      ? `${base}/${dirPath.split('/').map(encodeURIComponent).join('/')}`
+      : base;
     const res = await fetch(apiUrl, {
       headers: { 'Authorization': `Bearer ${githubPat}`, 'Accept': 'application/vnd.github+json' }
     });
@@ -895,13 +894,12 @@ async function fetchGithubFile(field) {
 
   const pathEl = document.getElementById(`${field}-path`);
   const path   = pathEl.value.trim();
-  if (!path) { alert('파일 경로를 입력해줘.'); return; }
+  if (!path) return;
 
-  // 경로 저장 (자동 복원용)
   localStorage.setItem(`ctx_${field}_path`, path);
 
-  const btn = document.getElementById(`${field}-fetch-btn`);
-  btn.disabled = true; btn.textContent = '불러오는 중...';
+  const browseBtn = document.getElementById(`${field}-browse-btn`);
+  if (browseBtn) browseBtn.disabled = true;
 
   try {
     const encodedPath = path.split('/').map(encodeURIComponent).join('/');
@@ -924,7 +922,7 @@ async function fetchGithubFile(field) {
     fieldData[field] = '';
     updateStatusDot(field);
   } finally {
-    btn.disabled = false; btn.textContent = '불러오기';
+    if (browseBtn) browseBtn.disabled = false;
   }
 }
 
