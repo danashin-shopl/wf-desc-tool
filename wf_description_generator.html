@@ -434,8 +434,15 @@
   .browser-item.is-md:hover .item-name { color: #3299fe; }
   .browser-item.non-md { opacity: 0.4; cursor: default; }
   .browser-item.non-md:hover { background: transparent; }
+  .browser-item.select-all {
+    border-bottom: 0.5px solid #eaeaea;
+    margin-bottom: 2px;
+  }
+  .browser-item.select-all .item-name { color: #3299fe; font-weight: 500; }
+  .browser-item.select-all:hover { background: #edf5ff; }
   .item-icon { font-size: 14px; flex-shrink: 0; line-height: 1; }
   .item-name { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .item-count { font-size: 10px; color: #bbbbbb; flex-shrink: 0; }
   .browser-loading {
     padding: 32px 20px; text-align: center;
     color: #bbbbbb; font-size: 12px;
@@ -811,7 +818,14 @@ async function loadBrowserDir(dirPath) {
 
     list.innerHTML = '';
 
-    // 상위 폴더 버튼 (루트가 아닐 때)
+    // ① 이 폴더 전체 선택
+    const selectAllEl = document.createElement('div');
+    selectAllEl.className = 'browser-item select-all';
+    selectAllEl.innerHTML = `<span class="item-icon">⊕</span><span class="item-name">${dirPath ? '이 폴더 전체 선택' : '레포 전체 선택'}</span><span class="item-count">MD 파일 전체</span>`;
+    selectAllEl.onclick = () => selectFolder(browserField, dirPath);
+    list.appendChild(selectAllEl);
+
+    // ② 상위 폴더 버튼 (루트가 아닐 때)
     if (dirPath) {
       const parentPath = dirPath.includes('/') ? dirPath.slice(0, dirPath.lastIndexOf('/')) : '';
       const back = document.createElement('div');
@@ -868,6 +882,70 @@ function selectFile(filePath) {
   document.getElementById(`${browserField}-path`).value = filePath;
   closeBrowser();
   fetchGithubFile(browserField);
+}
+
+async function selectFolder(field, folderPath) {
+  if (!field) field = browserField;
+
+  // 브라우저 모달이 열려있으면 닫기
+  const modal = document.getElementById('browser-modal');
+  if (modal.classList.contains('open')) closeBrowser();
+
+  const githubPat  = localStorage.getItem('github_pat');
+  const githubRepo = localStorage.getItem('github_repo');
+
+  // 경로 표시 (trailing slash로 폴더 구분)
+  const displayPath = folderPath ? `${folderPath}/` : '/';
+  document.getElementById(`${field}-path`).value = displayPath;
+  localStorage.setItem(`ctx_${field}_path`, displayPath);
+
+  const browseBtn = document.getElementById(`${field}-browse-btn`);
+  if (browseBtn) browseBtn.disabled = true;
+
+  try {
+    // 레포 전체 트리 조회 (recursive)
+    const treeRes = await fetch(
+      `https://api.github.com/repos/${githubRepo}/git/trees/HEAD?recursive=1`,
+      { headers: { 'Authorization': `Bearer ${githubPat}`, 'Accept': 'application/vnd.github+json' } }
+    );
+    if (!treeRes.ok) {
+      const err = await treeRes.json().catch(() => ({}));
+      throw new Error(`${treeRes.status}: ${err.message || treeRes.statusText}`);
+    }
+    const treeData = await treeRes.json();
+
+    // 대상 폴더 내 .md 파일만 필터
+    const mdFiles = treeData.tree.filter(item =>
+      item.type === 'blob' &&
+      /\.(md|markdown)$/i.test(item.path) &&
+      (folderPath ? item.path.startsWith(folderPath + '/') : true)
+    );
+
+    if (mdFiles.length === 0) throw new Error('선택한 폴더에 MD 파일이 없어요.');
+
+    // 병렬로 파일 내용 fetch
+    const results = await Promise.all(mdFiles.map(async file => {
+      const enc = file.path.split('/').map(encodeURIComponent).join('/');
+      const res = await fetch(
+        `https://api.github.com/repos/${githubRepo}/contents/${enc}`,
+        { headers: { 'Authorization': `Bearer ${githubPat}`, 'Accept': 'application/vnd.github+json' } }
+      );
+      if (!res.ok) return null;
+      const data = await res.json();
+      return `### ${file.path}\n\n${decodeBase64Utf8(data.content)}`;
+    }));
+
+    const combined = results.filter(Boolean).join('\n\n---\n\n');
+    fieldData[field] = combined;
+    updateStatusDot(field);
+
+  } catch (err) {
+    alert(`폴더 불러오기 실패:\n${err.message}`);
+    fieldData[field] = '';
+    updateStatusDot(field);
+  } finally {
+    if (browseBtn) browseBtn.disabled = false;
+  }
 }
 
 // ── Context toggle ──────────────────────────────
@@ -944,9 +1022,15 @@ async function initAutoLoad() {
 
   for (const f of ['common', 'policy', 'guide']) {
     const path = document.getElementById(`${f}-path`).value.trim();
-    if (path) {
-      try { await fetchGithubFile(f); } catch (_) {}
-    }
+    if (!path) continue;
+    try {
+      if (path === '/' || path.endsWith('/')) {
+        // 폴더 모드: trailing slash 제거 후 selectFolder
+        await selectFolder(f, path === '/' ? '' : path.slice(0, -1));
+      } else {
+        await fetchGithubFile(f);
+      }
+    } catch (_) {}
   }
 }
 
