@@ -401,6 +401,59 @@
   .modal-confirm:hover { opacity: 0.8; }
   .modal-confirm:disabled { opacity: 0.4; cursor: not-allowed; }
   #settings-modal .modal { width: 420px; }
+
+  /* ── File Browser ────────────────────────── */
+  #browser-modal .modal { width: 460px; padding: 0; overflow: hidden; }
+  .browser-header {
+    padding: 18px 20px 12px;
+    border-bottom: 0.5px solid #eaeaea;
+  }
+  .browser-title { font-size: 13px; font-weight: 700; color: #333333; margin-bottom: 8px; }
+  .browser-breadcrumb {
+    display: flex; align-items: center; gap: 3px;
+    font-size: 11px; color: #9a9a9a; flex-wrap: wrap; min-height: 18px;
+  }
+  .browser-crumb {
+    color: #3299fe; cursor: pointer; white-space: nowrap;
+  }
+  .browser-crumb:hover { text-decoration: underline; }
+  .browser-crumb-sep { color: #cccccc; }
+  .browser-list {
+    max-height: 400px; overflow-y: auto;
+    padding: 4px 0;
+  }
+  .browser-item {
+    display: flex; align-items: center; gap: 9px;
+    padding: 8px 20px; cursor: pointer;
+    font-size: 12px; color: #333333;
+    transition: background 0.1s;
+    user-select: none;
+  }
+  .browser-item:hover { background: #f6f6f6; }
+  .browser-item.is-md:hover { background: #edf5ff; }
+  .browser-item.is-md:hover .item-name { color: #3299fe; }
+  .browser-item.non-md { opacity: 0.4; cursor: default; }
+  .browser-item.non-md:hover { background: transparent; }
+  .item-icon { font-size: 14px; flex-shrink: 0; line-height: 1; }
+  .item-name { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .browser-loading {
+    padding: 32px 20px; text-align: center;
+    color: #bbbbbb; font-size: 12px;
+  }
+  .browser-footer {
+    padding: 12px 20px;
+    border-top: 0.5px solid #eaeaea;
+    display: flex; justify-content: flex-end;
+  }
+
+  .browse-btn {
+    width: 30px; height: 30px; flex-shrink: 0;
+    background: #f6f6f6; border: 0.5px solid #cccccc; border-radius: 5px;
+    cursor: pointer; color: #555555;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.1s;
+  }
+  .browse-btn:hover { background: #eaeaea; }
 </style>
 </head>
 <body>
@@ -491,7 +544,10 @@
           </div>
         </div>
         <div class="url-row">
-          <input type="text" class="url-input" id="common-path" placeholder="경로/파일명.md (레포 내 상대 경로)">
+          <input type="text" class="url-input" id="common-path" placeholder="경로/파일명.md">
+          <button class="browse-btn" onclick="openBrowser('common')" title="파일 탐색">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+          </button>
           <button class="fetch-btn" id="common-fetch-btn" onclick="fetchGithubFile('common')">불러오기</button>
         </div>
       </div>
@@ -505,7 +561,10 @@
           </div>
         </div>
         <div class="url-row">
-          <input type="text" class="url-input" id="policy-path" placeholder="경로/기능명.md (레포 내 상대 경로)">
+          <input type="text" class="url-input" id="policy-path" placeholder="경로/기능명.md">
+          <button class="browse-btn" onclick="openBrowser('policy')" title="파일 탐색">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+          </button>
           <button class="fetch-btn" id="policy-fetch-btn" onclick="fetchGithubFile('policy')">불러오기</button>
         </div>
       </div>
@@ -519,7 +578,10 @@
           </div>
         </div>
         <div class="url-row">
-          <input type="text" class="url-input" id="guide-path" placeholder="경로/작성지침.md (레포 내 상대 경로)">
+          <input type="text" class="url-input" id="guide-path" placeholder="경로/작성지침.md">
+          <button class="browse-btn" onclick="openBrowser('guide')" title="파일 탐색">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+          </button>
           <button class="fetch-btn" id="guide-fetch-btn" onclick="fetchGithubFile('guide')">불러오기</button>
         </div>
       </div>
@@ -595,6 +657,22 @@
     </div>
   </div>
 
+</div>
+
+<!-- ── File Browser Modal ─────────────────────── -->
+<div class="modal-overlay" id="browser-modal" onclick="if(event.target===this)closeBrowser()">
+  <div class="modal">
+    <div class="browser-header">
+      <div class="browser-title">파일 선택</div>
+      <div class="browser-breadcrumb" id="browser-breadcrumb"></div>
+    </div>
+    <div class="browser-list" id="browser-list">
+      <div class="browser-loading">불러오는 중...</div>
+    </div>
+    <div class="browser-footer">
+      <button class="modal-cancel" onclick="closeBrowser()">취소</button>
+    </div>
+  </div>
 </div>
 
 <!-- ── GitHub 저장 Modal ───────────────────────── -->
@@ -681,6 +759,116 @@ function saveSettings() {
   if (ghRepo) localStorage.setItem('github_repo', ghRepo);
   if (fgPat)  localStorage.setItem('figma_pat',   fgPat);
   closeSettings();
+}
+
+// ── File Browser ────────────────────────────────
+let browserField   = null;
+let browserCurPath = '';
+
+async function openBrowser(field) {
+  const githubPat  = localStorage.getItem('github_pat');
+  const githubRepo = localStorage.getItem('github_repo');
+  if (!githubPat || !githubRepo) {
+    alert('⚙ 설정에서 GitHub PAT와 레포를 먼저 입력해줘.');
+    openSettings(); return;
+  }
+  browserField   = field;
+  browserCurPath = '';
+  document.getElementById('browser-modal').classList.add('open');
+  await loadBrowserDir('');
+}
+
+function closeBrowser() {
+  document.getElementById('browser-modal').classList.remove('open');
+}
+
+async function loadBrowserDir(dirPath) {
+  browserCurPath = dirPath;
+  updateBreadcrumb(dirPath);
+
+  const list = document.getElementById('browser-list');
+  list.innerHTML = '<div class="browser-loading">불러오는 중...</div>';
+
+  const githubPat  = localStorage.getItem('github_pat');
+  const githubRepo = localStorage.getItem('github_repo');
+
+  try {
+    const encodedPath = dirPath ? dirPath.split('/').map(encodeURIComponent).join('/') : '';
+    const apiUrl = `https://api.github.com/repos/${githubRepo}/contents/${encodedPath}`;
+    const res = await fetch(apiUrl, {
+      headers: { 'Authorization': `Bearer ${githubPat}`, 'Accept': 'application/vnd.github+json' }
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(`${res.status}: ${err.message || res.statusText}`);
+    }
+    const items = await res.json();
+
+    // 폴더 먼저, 그 다음 파일 / 이름 오름차순
+    items.sort((a, b) => {
+      if (a.type !== b.type) return a.type === 'dir' ? -1 : 1;
+      return a.name.localeCompare(b.name, 'ko');
+    });
+
+    list.innerHTML = '';
+
+    // 상위 폴더 버튼 (루트가 아닐 때)
+    if (dirPath) {
+      const parentPath = dirPath.includes('/') ? dirPath.slice(0, dirPath.lastIndexOf('/')) : '';
+      const back = document.createElement('div');
+      back.className = 'browser-item';
+      back.innerHTML = `<span class="item-icon">↩</span><span class="item-name" style="color:#9a9a9a;">상위 폴더</span>`;
+      back.onclick = () => loadBrowserDir(parentPath);
+      list.appendChild(back);
+    }
+
+    if (items.length === 0) {
+      list.innerHTML += '<div class="browser-loading">폴더가 비어있어요.</div>';
+      return;
+    }
+
+    items.forEach(item => {
+      const isMd  = /\.(md|markdown)$/i.test(item.name);
+      const isDir = item.type === 'dir';
+      const el    = document.createElement('div');
+
+      if (isDir) {
+        el.className = 'browser-item';
+        el.innerHTML = `<span class="item-icon">📁</span><span class="item-name">${item.name}</span>`;
+        el.onclick   = () => loadBrowserDir(item.path);
+      } else if (isMd) {
+        el.className = 'browser-item is-md';
+        el.innerHTML = `<span class="item-icon">📄</span><span class="item-name">${item.name}</span>`;
+        el.onclick   = () => selectFile(item.path);
+      } else {
+        el.className = 'browser-item non-md';
+        el.innerHTML = `<span class="item-icon">📃</span><span class="item-name">${item.name}</span>`;
+      }
+      list.appendChild(el);
+    });
+
+  } catch (err) {
+    list.innerHTML = `<div class="browser-loading" style="color:#a32d2d;">불러오기 실패: ${err.message}</div>`;
+  }
+}
+
+function updateBreadcrumb(dirPath) {
+  const repo   = localStorage.getItem('github_repo') || '';
+  const crumb  = document.getElementById('browser-breadcrumb');
+  const parts  = dirPath ? dirPath.split('/') : [];
+
+  let html = `<span class="browser-crumb" onclick="loadBrowserDir('')">${repo}</span>`;
+  parts.forEach((part, i) => {
+    const p = parts.slice(0, i + 1).join('/');
+    html += `<span class="browser-crumb-sep">/</span><span class="browser-crumb" onclick="loadBrowserDir('${p}')">${part}</span>`;
+  });
+  crumb.innerHTML = html;
+}
+
+function selectFile(filePath) {
+  document.getElementById(`${browserField}-path`).value = filePath;
+  closeBrowser();
+  fetchGithubFile(browserField);
 }
 
 // ── Context toggle ──────────────────────────────
