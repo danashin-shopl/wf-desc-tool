@@ -1072,6 +1072,35 @@ function parseFigmaUrl(url) {
   }
 }
 
+async function fetchFigmaAnnotations(fileKey, nodeId, token) {
+  try {
+    const res = await fetch(
+      `https://api.figma.com/v1/files/${fileKey}/nodes?ids=${encodeURIComponent(nodeId)}`,
+      { headers: { 'X-Figma-Token': token } }
+    );
+    if (!res.ok) return null;
+    const data = await res.json();
+    const nodeData = data.nodes?.[nodeId]?.document;
+    if (!nodeData) return null;
+
+    const annotations = nodeData.annotations;
+    if (!annotations?.length) return null;
+
+    // nodeId → node name 매핑
+    const nodeMap = {};
+    function mapNodes(n) { nodeMap[n.id] = n; (n.children || []).forEach(mapNodes); }
+    mapNodes(nodeData);
+
+    return [...annotations]
+      .sort((a, b) => (parseInt(a.label) || 0) - (parseInt(b.label) || 0))
+      .map(ann => {
+        const linkedId = ann.properties?.[0]?.nodeId;
+        const name = linkedId ? (nodeMap[linkedId]?.name || '') : '';
+        return `${ann.label}. ${name}`;
+      });
+  } catch { return null; }
+}
+
 async function fetchFigmaImage(idx) {
   const token = localStorage.getItem('figma_pat');
   const url   = document.getElementById(`figma-url-${idx}`).value.trim();
@@ -1109,8 +1138,13 @@ async function fetchFigmaImage(idx) {
     if (!imgRes.ok) throw new Error(`이미지 다운로드 실패: ${imgRes.status}`);
     const blob = await imgRes.blob();
 
+    // Annotation 데이터 병렬 fetch
+    const [annotations] = await Promise.all([
+      fetchFigmaAnnotations(parsed.fileKey, parsed.nodeId, token)
+    ]);
+
     const reader = new FileReader();
-    reader.onload = (ev) => setPreview(idx, ev.target.result, blob.type || 'image/png');
+    reader.onload = (ev) => setPreview(idx, ev.target.result, blob.type || 'image/png', annotations);
     reader.readAsDataURL(blob);
 
   } catch (err) {
@@ -1186,8 +1220,8 @@ function removeRow(idx) {
   updateFigmaTag(); checkRunnable();
 }
 
-function setPreview(idx, dataUrl, mimeType) {
-  images[idx] = { base64: dataUrl.split(',')[1], type: mimeType || 'image/png', dataUrl };
+function setPreview(idx, dataUrl, mimeType, annotations) {
+  images[idx] = { base64: dataUrl.split(',')[1], type: mimeType || 'image/png', dataUrl, annotations: annotations || null };
   document.getElementById(`row-dot-${idx}`).classList.add('loaded');
   document.getElementById(`figma-url-${idx}`).disabled = true;
   document.getElementById(`figma-fetch-btn-${idx}`).disabled = true;
@@ -1244,6 +1278,19 @@ function buildUserText() {
   const parts = [];
   if (fieldData.common)  parts.push(`## 공통 정책\n${fieldData.common}`);
   if (fieldData.policy)  parts.push(`## Policy\n${fieldData.policy}`);
+  // Figma API에서 가져온 annotation 목록 포함
+  const loadedImages = images.filter(Boolean);
+  const annotationLines = [];
+  loadedImages.forEach((img, i) => {
+    if (img.annotations?.length) {
+      if (loadedImages.length > 1) annotationLines.push(`[화면 ${i + 1}]`);
+      annotationLines.push(...img.annotations);
+    }
+  });
+  if (annotationLines.length > 0) {
+    parts.push(`## Figma Annotation 항목\n${annotationLines.join('\n')}\n\n위 항목 번호와 이름을 기준으로 Description을 작성해줘.`);
+  }
+
   parts.push(`[필수 준수] 위 와이어프레임 이미지(여러 장인 경우 순서대로)에서 번호 annotation이 명시된 항목에 대해서만 Description을 작성해줘. annotation 번호가 없는 항목은 절대 작성하지 않는다. 이미지가 여러 장인 경우 각 이미지의 annotation 번호를 이어서 작성한다 (예: 화면1에 1·2, 화면2에 3·4 → 1→2→3→4 순서). 이 규칙은 다른 모든 지침보다 우선한다.
 
 아래 형식을 반드시 지켜서 출력해줘:
