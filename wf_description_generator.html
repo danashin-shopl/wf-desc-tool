@@ -713,7 +713,7 @@ const GEMINI_FIXED_KEY = 'AIzaSyAjE7ljs05nwZxR0uCR88xG7amn6Oet7N8';
 
 // ── Default writing rules (fallback when guide not loaded) ──
 const DEFAULT_RULES = `## 작성 범위
-- 이미지에 번호 annotation이 있는 경우: 해당 번호를 기준으로 각 항목의 Description을 작성
+- 이미지에 번호 annotation이 있는 경우: annotation이 달린 항목에 대해서만 작성 (annotation 없는 항목은 작성하지 않음)
 - 번호 annotation이 없는 경우: 이미지를 직접 분석하여 기술이 필요한 항목을 스스로 정의하고 작성
 
 ## 작성 규칙
@@ -1135,7 +1135,7 @@ function buildUserText() {
   const parts = [];
   if (fieldData.common)  parts.push(`## 공통 정책\n${fieldData.common}`);
   if (fieldData.policy)  parts.push(`## Policy\n${fieldData.policy}`);
-  parts.push('위 와이어프레임 이미지의 번호 annotation을 기준으로 각 컴포넌트의 Description을 작성해줘.');
+  parts.push('위 와이어프레임 이미지에서 번호 annotation이 달린 항목에 대해서만 Description을 작성해줘. annotation이 없는 항목은 작성하지 않는다.');
   parts.push(`디스크립션 작성 후, 아래에 해당하는 사항이 있으면 구분자 "---NOTES---" 를 추가하고 bullet 형태로 작성해줘. 해당 없으면 구분자를 완전히 생략해.
 - 참조한 Common / Policy 명세와 충돌하거나 불일치하는 부분
 - 명세에 없어서 임의로 판단하고 작성한 내용
