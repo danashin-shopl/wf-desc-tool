@@ -673,7 +673,7 @@
 <div class="modal-overlay" id="browser-modal" onclick="if(event.target===this)closeBrowser()">
   <div class="modal">
     <div class="browser-header">
-      <div class="browser-title">파일 선택</div>
+      <div class="browser-title" id="browser-title">파일 선택</div>
       <div class="browser-breadcrumb" id="browser-breadcrumb"></div>
     </div>
     <div class="browser-list" id="browser-list">
@@ -695,7 +695,12 @@
     </div>
     <div class="modal-field">
       <label>경로 / 파일명</label>
-      <input type="text" id="gh-path" placeholder="common/FE/파일명.md">
+      <div class="url-row">
+        <input type="text" id="gh-path" class="url-input" placeholder="폴더 선택 후 파일명 입력.md">
+        <button class="browse-btn" onclick="openBrowserForSave()" title="폴더 탐색">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+        </button>
+      </div>
     </div>
     <div class="modal-status" id="gh-status"></div>
     <div class="modal-btns">
@@ -786,6 +791,7 @@ function saveSettings() {
 // ── File Browser ────────────────────────────────
 let browserField   = null;
 let browserCurPath = '';
+let browserTarget  = 'context'; // 'context' | 'save'
 
 async function openBrowser(field) {
   const githubPat  = localStorage.getItem('github_pat');
@@ -795,7 +801,23 @@ async function openBrowser(field) {
     openSettings(); return;
   }
   browserField   = field;
+  browserTarget  = 'context';
   browserCurPath = '';
+  document.getElementById('browser-title').textContent = '파일 선택';
+  document.getElementById('browser-modal').classList.add('open');
+  await loadBrowserDir('');
+}
+
+async function openBrowserForSave() {
+  const githubPat  = localStorage.getItem('github_pat');
+  const githubRepo = localStorage.getItem('github_repo');
+  if (!githubPat || !githubRepo) {
+    alert('⚙ 설정에서 GitHub PAT와 레포를 먼저 입력해줘.');
+    openSettings(); return;
+  }
+  browserTarget  = 'save';
+  browserCurPath = '';
+  document.getElementById('browser-title').textContent = '저장 위치 선택';
   document.getElementById('browser-modal').classList.add('open');
   await loadBrowserDir('');
 }
@@ -836,11 +858,19 @@ async function loadBrowserDir(dirPath) {
 
     list.innerHTML = '';
 
-    // ① 이 폴더 전체 선택
+    // ① 이 폴더 전체 선택 / 이 폴더에 저장
     const selectAllEl = document.createElement('div');
     selectAllEl.className = 'browser-item select-all';
-    selectAllEl.innerHTML = `<span class="item-icon">⊕</span><span class="item-name">${dirPath ? '이 폴더 전체 선택' : '레포 전체 선택'}</span><span class="item-count">MD 파일 전체</span>`;
-    selectAllEl.onclick = () => selectFolder(browserField, dirPath);
+    if (browserTarget === 'save') {
+      selectAllEl.innerHTML = `<span class="item-icon">⊕</span><span class="item-name">${dirPath ? '이 폴더에 저장' : '루트에 저장'}</span><span class="item-count">폴더 경로 선택</span>`;
+      selectAllEl.onclick = () => {
+        document.getElementById('gh-path').value = dirPath ? dirPath + '/' : '';
+        closeBrowser();
+      };
+    } else {
+      selectAllEl.innerHTML = `<span class="item-icon">⊕</span><span class="item-name">${dirPath ? '이 폴더 전체 선택' : '레포 전체 선택'}</span><span class="item-count">MD 파일 전체</span>`;
+      selectAllEl.onclick = () => selectFolder(browserField, dirPath);
+    }
     list.appendChild(selectAllEl);
 
     // ② 상위 폴더 버튼 (루트가 아닐 때)
@@ -870,7 +900,9 @@ async function loadBrowserDir(dirPath) {
       } else if (isMd) {
         el.className = 'browser-item is-md';
         el.innerHTML = `<span class="item-icon">📄</span><span class="item-name">${item.name}</span>`;
-        el.onclick   = () => selectFile(item.path);
+        el.onclick   = browserTarget === 'save'
+          ? () => { document.getElementById('gh-path').value = item.path; closeBrowser(); }
+          : () => selectFile(item.path);
       } else {
         el.className = 'browser-item non-md';
         el.innerHTML = `<span class="item-icon">📃</span><span class="item-name">${item.name}</span>`;
