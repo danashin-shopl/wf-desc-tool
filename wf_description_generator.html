@@ -42,32 +42,6 @@
   .settings-btn:hover { color: #fff; border-color: rgba(255,255,255,0.5); }
   .settings-btn.active { color: #fff; border-color: #3299fe; background: rgba(50,153,254,0.18); }
 
-  .api-key-wrap {
-    display: flex; align-items: center; gap: 8px;
-    background: rgba(255,255,255,0.08); border: 0.5px solid rgba(255,255,255,0.18);
-    border-radius: 8px; padding: 6px 12px;
-  }
-  .api-key-wrap label { font-size: 11px; color: #9a9a9a; font-weight: 500; white-space: nowrap; }
-  .api-key-wrap input {
-    border: none; outline: none; font-size: 12px;
-    font-family: inherit; color: #fff; background: transparent; width: 220px;
-  }
-  .api-key-wrap input::placeholder { color: rgba(255,255,255,0.25); }
-
-  /* ── Model Toggle ────────────────────────── */
-  .mode-toggle {
-    display: flex;
-    border: 0.5px solid rgba(255,255,255,0.18);
-    border-radius: 6px; overflow: hidden;
-  }
-  .mode-btn {
-    padding: 3px 11px; font-size: 11px; font-family: inherit;
-    font-weight: 500; border: none;
-    cursor: pointer; transition: background 0.12s, color 0.12s;
-  }
-  .mode-btn + .mode-btn { border-left: 0.5px solid rgba(255,255,255,0.18); }
-  .top-bar .mode-btn         { background: #555;     color: #fff; }
-  .top-bar .mode-btn.active  { background: #3299fe;  color: #fff; }
 
   /* ── Context Section ─────────────────────── */
   .context-section {
@@ -482,14 +456,6 @@
     <div class="top-subtitle">Wireframe Description 자동 생성기</div>
   </div>
   <div class="top-right">
-    <div class="api-key-wrap" id="api-key-wrap">
-      <label for="api-key">API Key</label>
-      <input type="password" id="api-key" placeholder="sk-ant-..." autocomplete="off">
-    </div>
-    <div class="mode-toggle">
-      <button class="mode-btn active" id="model-gemini" onclick="switchModel('gemini')">Gemini</button>
-      <button class="mode-btn"        id="model-claude" onclick="switchModel('claude')">Claude</button>
-    </div>
     <button class="settings-btn" id="settings-btn" onclick="openSettings()" title="설정">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="12" cy="12" r="3"/>
@@ -513,6 +479,13 @@
     <div class="modal-field">
       <label>레포 (Context 불러오기 · 결과 저장 대상)</label>
       <input type="text" id="settings-github-repo" placeholder="owner/repo (예: danashin-shopl/shopl-pm)">
+    </div>
+
+    <div class="modal-section-title">Claude</div>
+    <div class="modal-field">
+      <label>API Key</label>
+      <input type="password" id="settings-claude-key" placeholder="sk-ant-..." autocomplete="off">
+      <div class="modal-hint">console.anthropic.com에서 발급하세요.</div>
     </div>
 
     <div class="modal-section-title">Figma</div>
@@ -715,11 +688,9 @@
 // ── State ───────────────────────────────────────
 let imageBase64   = null;
 let imageType     = null;
-let currentModel  = 'gemini';
 const fieldData   = { common: '', policy: '', guide: '' };
 
 // 조직 공용 Gemini API Key (고정)
-const GEMINI_FIXED_KEY = 'AIzaSyAjE7ljs05nwZxR0uCR88xG7amn6Oet7N8';
 
 // ── Default writing rules (fallback when guide not loaded) ──
 const DEFAULT_RULES = `## 작성 범위
@@ -752,25 +723,13 @@ const DEFAULT_RULES = `## 작성 범위
 #### 2. 컴포넌트명(UI유형)
 • 기본 동작 설명`;
 
-// ── Model switch ────────────────────────────────
-function switchModel(model) {
-  currentModel = model;
-  document.getElementById('model-gemini').classList.toggle('active', model === 'gemini');
-  document.getElementById('model-claude').classList.toggle('active', model === 'claude');
-  const wrap = document.getElementById('api-key-wrap');
-  if (model === 'claude') {
-    wrap.style.visibility = '';
-    document.getElementById('api-key').value = localStorage.getItem('anthropic_api_key') || '';
-  } else {
-    wrap.style.visibility = 'hidden';
-  }
-}
 
 // ── Settings modal ──────────────────────────────
 function openSettings() {
-  document.getElementById('settings-github-pat').value  = localStorage.getItem('github_pat')  || '';
-  document.getElementById('settings-github-repo').value = localStorage.getItem('github_repo') || '';
-  document.getElementById('settings-figma-pat').value   = localStorage.getItem('figma_pat')   || '';
+  document.getElementById('settings-github-pat').value  = localStorage.getItem('github_pat')        || '';
+  document.getElementById('settings-github-repo').value = localStorage.getItem('github_repo')       || '';
+  document.getElementById('settings-claude-key').value  = localStorage.getItem('anthropic_api_key') || '';
+  document.getElementById('settings-figma-pat').value   = localStorage.getItem('figma_pat')         || '';
   document.getElementById('settings-modal').classList.add('open');
   document.getElementById('settings-btn').classList.add('active');
 }
@@ -779,12 +738,14 @@ function closeSettings() {
   document.getElementById('settings-btn').classList.remove('active');
 }
 function saveSettings() {
-  const ghPat  = document.getElementById('settings-github-pat').value.trim();
-  const ghRepo = document.getElementById('settings-github-repo').value.trim();
-  const fgPat  = document.getElementById('settings-figma-pat').value.trim();
-  if (ghPat)  localStorage.setItem('github_pat',  ghPat);
-  if (ghRepo) localStorage.setItem('github_repo', ghRepo);
-  if (fgPat)  localStorage.setItem('figma_pat',   fgPat);
+  const ghPat     = document.getElementById('settings-github-pat').value.trim();
+  const ghRepo    = document.getElementById('settings-github-repo').value.trim();
+  const claudeKey = document.getElementById('settings-claude-key').value.trim();
+  const fgPat     = document.getElementById('settings-figma-pat').value.trim();
+  if (ghPat)     localStorage.setItem('github_pat',        ghPat);
+  if (ghRepo)    localStorage.setItem('github_repo',       ghRepo);
+  if (claudeKey) localStorage.setItem('anthropic_api_key', claudeKey);
+  if (fgPat)     localStorage.setItem('figma_pat',         fgPat);
   closeSettings();
 }
 
@@ -1237,7 +1198,8 @@ async function callGemini() {
   return data.candidates?.[0]?.content?.parts?.map(p => p.text || '').join('') || '';
 }
 
-async function callClaude(apiKey) {
+async function callClaude() {
+  const apiKey = localStorage.getItem('anthropic_api_key');
   const res = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: {
@@ -1266,9 +1228,7 @@ async function callClaude(apiKey) {
 
 // ── Generate ────────────────────────────────────
 async function generate() {
-  const apiKey = document.getElementById('api-key').value.trim();
-
-  if (currentModel === 'claude' && !apiKey) { showError('API Key를 입력해줘.'); return; }
+  if (!localStorage.getItem('anthropic_api_key')) { showError('⚙ 설정에서 Claude API Key를 먼저 입력해줘.'); return; }
   if (!imageBase64) { showError('이미지를 먼저 가져와줘.'); return; }
 
   hideError();
@@ -1279,9 +1239,7 @@ async function generate() {
   document.getElementById('notes-box').classList.remove('visible');
 
   try {
-    const raw = currentModel === 'gemini'
-      ? await callGemini()
-      : await callClaude(apiKey);
+    const raw = await callClaude();
 
     const sep   = raw.indexOf('---NOTES---');
     const text  = sep !== -1 ? raw.slice(0, sep).trim() : raw.trim();
@@ -1439,15 +1397,6 @@ document.addEventListener('paste', e => {
 });
 
 // ── Init ─────────────────────────────────────────
-switchModel('gemini'); // Gemini default (hides Claude API key)
-
-const savedClaudeKey = localStorage.getItem('anthropic_api_key');
-if (savedClaudeKey) document.getElementById('api-key').value = savedClaudeKey;
-document.getElementById('api-key').addEventListener('change', e => {
-  if (e.target.value && currentModel === 'claude')
-    localStorage.setItem('anthropic_api_key', e.target.value);
-});
-
 initAutoLoad();
 </script>
 </body>
