@@ -466,6 +466,10 @@
     background: #f6f6f6;
   }
   .url-input[readonly]:focus { border-color: #cccccc; background: #f6f6f6; }
+  .url-input:disabled {
+    color: #9a9a9a; cursor: default;
+    background: #f6f6f6; opacity: 1;
+  }
 </style>
 </head>
 <body>
@@ -1118,6 +1122,8 @@ function setPreview(dataUrl) {
   document.getElementById('preview-wrap').style.display = 'block';
   document.getElementById('figma-placeholder').style.display = 'none';
   document.getElementById('figma-tag').classList.add('visible');
+  document.getElementById('figma-url').disabled = true;
+  document.getElementById('figma-fetch-btn').disabled = true;
   checkRunnable();
 }
 
@@ -1126,6 +1132,8 @@ function removeImage() {
   document.getElementById('preview-wrap').style.display = 'none';
   document.getElementById('figma-placeholder').style.display = 'flex';
   document.getElementById('figma-tag').classList.remove('visible');
+  document.getElementById('figma-url').disabled = false;
+  document.getElementById('figma-fetch-btn').disabled = false;
   checkRunnable();
 }
 
