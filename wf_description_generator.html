@@ -1112,27 +1112,55 @@ async function fetchFigmaAnnotations(fileKey, nodeId, token) {
       `https://api.figma.com/v1/files/${fileKey}/nodes?ids=${encodeURIComponent(nodeId)}`,
       { headers: { 'X-Figma-Token': token } }
     );
-    if (!res.ok) return null;
+    if (!res.ok) {
+      console.warn('[Annotation] API error:', res.status);
+      return null;
+    }
     const data = await res.json();
-    const nodeData = data.nodes?.[nodeId]?.document;
+
+    // response key가 nodeId 형식과 다를 수 있으므로 fallback
+    const nodeEntry = data.nodes?.[nodeId] ?? Object.values(data.nodes || {})[0];
+    if (!nodeEntry) { console.warn('[Annotation] node entry not found in response', Object.keys(data.nodes || {})); return null; }
+    const nodeData = nodeEntry.document;
     if (!nodeData) return null;
 
-    const annotations = nodeData.annotations;
-    if (!annotations?.length) return null;
+    const collected = [];
 
-    // nodeId → node name 매핑
-    const nodeMap = {};
-    function mapNodes(n) { nodeMap[n.id] = n; (n.children || []).forEach(mapNodes); }
-    mapNodes(nodeData);
-
-    return [...annotations]
-      .sort((a, b) => (parseInt(a.label) || 0) - (parseInt(b.label) || 0))
-      .map(ann => {
+    // ① 프레임 자체에 annotations 배열이 있는 경우 (properties[0].nodeId → 자식 참조)
+    if (nodeData.annotations?.length) {
+      const nodeMap = {};
+      function mapNodes(n) { nodeMap[n.id] = n; (n.children || []).forEach(mapNodes); }
+      mapNodes(nodeData);
+      for (const ann of nodeData.annotations) {
         const linkedId = ann.properties?.[0]?.nodeId;
         const name = linkedId ? (nodeMap[linkedId]?.name || '') : '';
-        return `${ann.label}. ${name}`;
-      });
-  } catch { return null; }
+        collected.push({ label: ann.label, name });
+      }
+    }
+
+    // ② 자식 노드 각각에 annotations가 붙어있는 경우 (Figma Dev Mode 방식)
+    function traverse(node) {
+      if (node.id !== nodeData.id && node.annotations?.length) {
+        for (const ann of node.annotations) {
+          if (!collected.find(c => c.label === ann.label)) {
+            collected.push({ label: ann.label, name: node.name });
+          }
+        }
+      }
+      (node.children || []).forEach(traverse);
+    }
+    traverse(nodeData);
+
+    console.log('[Annotation] collected:', collected);
+    if (!collected.length) return null;
+
+    return collected
+      .sort((a, b) => (parseInt(a.label) || 0) - (parseInt(b.label) || 0))
+      .map(({ label, name }) => `${label}. ${name}`);
+  } catch (e) {
+    console.error('[Annotation] error:', e);
+    return null;
+  }
 }
 
 async function fetchFigmaImage(idx) {
