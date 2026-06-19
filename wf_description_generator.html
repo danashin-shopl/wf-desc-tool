@@ -1148,7 +1148,7 @@ function buildUserText() {
   const parts = [];
   if (fieldData.common)  parts.push(`## 공통 정책\n${fieldData.common}`);
   if (fieldData.policy)  parts.push(`## Policy\n${fieldData.policy}`);
-  parts.push(`위 와이어프레임 이미지에서 번호 annotation이 달린 항목에 대해서만 Description을 작성해줘. annotation이 없는 항목은 작성하지 않는다.
+  parts.push(`[필수 준수] 위 와이어프레임 이미지에서 번호 annotation이 명시된 항목에 대해서만 Description을 작성해줘. annotation 번호가 없는 항목은 절대 작성하지 않는다. 이 규칙은 다른 모든 지침보다 우선한다.
 
 아래 형식을 반드시 지켜서 출력해줘:
 
