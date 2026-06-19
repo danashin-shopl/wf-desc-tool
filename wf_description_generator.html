@@ -1118,15 +1118,32 @@ async function fetchFigmaAnnotations(fileKey, nodeId, token) {
     }
     const data = await res.json();
 
-    // response key가 nodeId 형식과 다를 수 있으므로 fallback
     const nodeEntry = data.nodes?.[nodeId] ?? Object.values(data.nodes || {})[0];
-    if (!nodeEntry) { console.warn('[Annotation] node entry not found in response', Object.keys(data.nodes || {})); return null; }
+    if (!nodeEntry) { console.warn('[Annotation] node entry not found. keys:', Object.keys(data.nodes || {})); return null; }
     const nodeData = nodeEntry.document;
     if (!nodeData) return null;
 
+    // 진단용: nodeData 최상위 필드 + annotations 원본 출력
+    const debugShallow = Object.fromEntries(
+      Object.entries(nodeData)
+        .filter(([k]) => k !== 'children')
+        .map(([k, v]) => [k, typeof v === 'object' ? JSON.stringify(v).slice(0, 200) : v])
+    );
+    console.log('[Annotation] nodeData (children 제외):', debugShallow);
+    console.log('[Annotation] nodeData.annotations:', JSON.stringify(nodeData.annotations ?? null));
+
+    // 자식 노드 중 annotations 있는 것 탐색
+    const nodesWithAnn = [];
+    function scanChildren(node, depth) {
+      if (depth > 0 && node.annotations?.length) nodesWithAnn.push({ id: node.id, name: node.name, annotations: node.annotations });
+      (node.children || []).forEach(c => scanChildren(c, depth + 1));
+    }
+    scanChildren(nodeData, 0);
+    console.log('[Annotation] 자식 중 annotations 있는 노드:', nodesWithAnn);
+
     const collected = [];
 
-    // ① 프레임 자체에 annotations 배열이 있는 경우 (properties[0].nodeId → 자식 참조)
+    // ① 프레임 자체에 annotations 있는 경우
     if (nodeData.annotations?.length) {
       const nodeMap = {};
       function mapNodes(n) { nodeMap[n.id] = n; (n.children || []).forEach(mapNodes); }
@@ -1138,20 +1155,16 @@ async function fetchFigmaAnnotations(fileKey, nodeId, token) {
       }
     }
 
-    // ② 자식 노드 각각에 annotations가 붙어있는 경우 (Figma Dev Mode 방식)
-    function traverse(node) {
-      if (node.id !== nodeData.id && node.annotations?.length) {
-        for (const ann of node.annotations) {
-          if (!collected.find(c => c.label === ann.label)) {
-            collected.push({ label: ann.label, name: node.name });
-          }
+    // ② 자식 노드 각각에 annotations 붙어있는 경우
+    for (const n of nodesWithAnn) {
+      for (const ann of n.annotations) {
+        if (!collected.find(c => c.label === ann.label)) {
+          collected.push({ label: ann.label, name: n.name });
         }
       }
-      (node.children || []).forEach(traverse);
     }
-    traverse(nodeData);
 
-    console.log('[Annotation] collected:', collected);
+    console.log('[Annotation] 최종 collected:', collected);
     if (!collected.length) return null;
 
     return collected
