@@ -186,13 +186,19 @@
   .figma-placeholder .ph-text { font-size: 11px; color: #cccccc; }
 
   /* ── Preview ─────────────────────────────── */
-  .preview-wrap {
-    display: none; position: relative;
-    flex: 3; min-height: 140px;
+  /* Multi-image preview scroll */
+  .preview-scroll {
+    display: none; flex: 3; min-height: 140px;
+    overflow-x: auto; overflow-y: hidden;
+    gap: 8px; align-items: flex-start;
   }
-  .preview-wrap img {
-    width: 100%; height: 100%; object-fit: contain;
-    border-radius: 10px; border: 0.5px solid #eaeaea; display: block;
+  .preview-scroll::-webkit-scrollbar { height: 4px; }
+  .preview-scroll::-webkit-scrollbar-thumb { background: #ddd; border-radius: 2px; }
+  .preview-card { position: relative; flex-shrink: 0; height: 100%; }
+  .preview-card img {
+    height: 100%; max-height: 260px; width: auto;
+    object-fit: contain; border-radius: 10px;
+    border: 0.5px solid #eaeaea; display: block;
   }
   .remove-btn {
     position: absolute; top: 6px; right: 6px;
@@ -202,6 +208,17 @@
     color: #555555; transition: background 0.1s;
   }
   .remove-btn:hover { background: #f6f6f6; }
+
+  /* Multi-URL rows */
+  .figma-rows { display: flex; flex-direction: column; gap: 5px; }
+  .figma-row { display: flex; align-items: center; gap: 5px; }
+  .figma-row-num { font-size: 11px; color: #bbb; font-weight: 600; width: 13px; flex-shrink: 0; text-align: center; }
+  .figma-row-dot { width: 7px; height: 7px; border-radius: 50%; background: #e0e0e0; flex-shrink: 0; transition: background 0.2s; }
+  .figma-row-dot.loaded { background: #3cb043; }
+  .remove-row-btn { width: 20px; height: 20px; border: none; background: none; cursor: pointer; color: #ccc; font-size: 13px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; padding: 0; }
+  .remove-row-btn:hover { color: #e24b4a; }
+  .add-row-btn { margin-top: 5px; font-size: 11px; color: #3299fe; background: none; border: none; cursor: pointer; padding: 0; font-family: inherit; }
+  .add-row-btn:hover { text-decoration: underline; }
 
   /* ── Generate Column ─────────────────────── */
   .generate-col {
@@ -585,13 +602,10 @@
     <div class="figma-section">
       <div class="figma-section-label">
         Figma URL
-        <span class="figma-tag" id="figma-tag">이미지 로드됨 ✓</span>
+        <span class="figma-tag" id="figma-tag">로드됨 ✓</span>
       </div>
-      <div class="url-row">
-        <input type="text" class="url-input" id="figma-url"
-          placeholder="https://www.figma.com/design/...?node-id=...">
-        <button class="fetch-btn" id="figma-fetch-btn" onclick="fetchFigmaImage()">가져오기</button>
-      </div>
+      <div class="figma-rows" id="figma-rows"></div>
+      <button class="add-row-btn" id="add-row-btn" onclick="addFigmaRow()">+ URL 추가</button>
     </div>
 
     <!-- Placeholder (no image) -->
@@ -600,11 +614,8 @@
       <div class="ph-text">Figma URL을 입력하고 가져오기를 눌러주세요.</div>
     </div>
 
-    <!-- Preview -->
-    <div class="preview-wrap" id="preview-wrap">
-      <img id="preview" alt="Figma 프레임">
-      <button class="remove-btn" onclick="removeImage()" aria-label="이미지 제거">✕</button>
-    </div>
+    <!-- Preview (horizontal scroll) -->
+    <div class="preview-scroll" id="preview-scroll"></div>
 
   </div>
 
@@ -686,8 +697,7 @@
 
 <script>
 // ── State ───────────────────────────────────────
-let imageBase64   = null;
-let imageType     = null;
+let images = []; // [{base64, type, dataUrl} | null]
 const fieldData   = { common: '', policy: '', guide: '' };
 
 // 조직 공용 Gemini API Key (고정)
@@ -1062,9 +1072,9 @@ function parseFigmaUrl(url) {
   }
 }
 
-async function fetchFigmaImage() {
+async function fetchFigmaImage(idx) {
   const token = localStorage.getItem('figma_pat');
-  const url   = document.getElementById('figma-url').value.trim();
+  const url   = document.getElementById(`figma-url-${idx}`).value.trim();
 
   if (!token) {
     alert('⚙ 설정에서 Figma Personal Access Token을 먼저 입력해줘.');
@@ -1080,11 +1090,10 @@ async function fetchFigmaImage() {
     alert('URL에 node-id가 없어.\nFigma에서 특정 프레임을 선택 → 우클릭 → "Copy link" 후 붙여넣어줘.\n\n예: ...?node-id=123-456'); return;
   }
 
-  const btn = document.getElementById('figma-fetch-btn');
+  const btn = document.getElementById(`figma-fetch-btn-${idx}`);
   btn.disabled = true; btn.textContent = '불러오는 중...';
 
   try {
-    // Step 1: 이미지 URL 조회
     const apiUrl = `https://api.figma.com/v1/images/${parsed.fileKey}?ids=${encodeURIComponent(parsed.nodeId)}&format=png&scale=2`;
     const apiRes = await fetch(apiUrl, { headers: { 'X-Figma-Token': token } });
     if (!apiRes.ok) {
@@ -1095,46 +1104,133 @@ async function fetchFigmaImage() {
     const imageUrl = apiData.images?.[parsed.nodeId];
     if (!imageUrl) throw new Error('이미지 URL을 받지 못했어. node-id를 다시 확인해줘.');
 
-    // Step 2: 이미지 다운로드 → base64
     btn.textContent = '이미지 변환 중...';
     const imgRes = await fetch(imageUrl);
     if (!imgRes.ok) throw new Error(`이미지 다운로드 실패: ${imgRes.status}`);
     const blob = await imgRes.blob();
 
     const reader = new FileReader();
-    reader.onload = (ev) => {
-      const result = ev.target.result;
-      imageBase64 = result.split(',')[1];
-      imageType   = blob.type || 'image/png';
-      setPreview(result);
-    };
+    reader.onload = (ev) => setPreview(idx, ev.target.result, blob.type || 'image/png');
     reader.readAsDataURL(blob);
 
   } catch (err) {
     alert(`Figma 이미지 가져오기 실패:\n${err.message}`);
-  } finally {
     btn.disabled = false; btn.textContent = '가져오기';
   }
 }
 
-function setPreview(dataUrl) {
-  document.getElementById('preview').src = dataUrl;
-  document.getElementById('preview-wrap').style.display = 'block';
-  document.getElementById('figma-placeholder').style.display = 'none';
-  document.getElementById('figma-tag').classList.add('visible');
-  document.getElementById('figma-url').disabled = true;
-  document.getElementById('figma-fetch-btn').disabled = true;
-  checkRunnable();
+// ── Multi-image row management ───────────────────
+function createFigmaRow(idx) {
+  const row = document.createElement('div');
+  row.className = 'figma-row';
+  row.id = `figma-row-${idx}`;
+  row.innerHTML = `
+    <span class="figma-row-num">${idx + 1}</span>
+    <div class="figma-row-dot" id="row-dot-${idx}"></div>
+    <input type="text" class="url-input" id="figma-url-${idx}"
+      placeholder="https://www.figma.com/design/...?node-id=..." style="flex:1;min-width:0;">
+    <button class="fetch-btn" id="figma-fetch-btn-${idx}" onclick="fetchFigmaImage(${idx})">가져오기</button>
+    <button class="remove-row-btn" onclick="removeRow(${idx})" title="행 삭제">✕</button>
+  `;
+  return row;
 }
 
-function removeImage() {
-  imageBase64 = null; imageType = null;
-  document.getElementById('preview-wrap').style.display = 'none';
-  document.getElementById('figma-placeholder').style.display = 'flex';
-  document.getElementById('figma-tag').classList.remove('visible');
-  document.getElementById('figma-url').disabled = false;
-  document.getElementById('figma-fetch-btn').disabled = false;
-  checkRunnable();
+function addFigmaRow() {
+  const rows = document.getElementById('figma-rows');
+  const idx = rows.children.length;
+  if (idx >= 5) return;
+  images.push(null);
+  rows.appendChild(createFigmaRow(idx));
+  document.getElementById(`figma-url-${idx}`).addEventListener('keydown', e => {
+    if (e.key === 'Enter') fetchFigmaImage(idx);
+  });
+  if (rows.children.length >= 5) document.getElementById('add-row-btn').style.display = 'none';
+}
+
+function removeRow(idx) {
+  const rows = document.getElementById('figma-rows');
+  if (rows.children.length <= 1) {
+    // 마지막 행은 삭제하지 않고 초기화
+    images[0] = null;
+    document.getElementById('figma-url-0').value = '';
+    document.getElementById('figma-url-0').disabled = false;
+    document.getElementById('figma-fetch-btn-0').disabled = false;
+    document.getElementById('row-dot-0').classList.remove('loaded');
+    document.getElementById(`preview-card-0`)?.remove();
+    updateFigmaTag(); checkRunnable(); return;
+  }
+  // 현재 상태 수집 후 재구성
+  const state = [];
+  for (let i = 0; i < rows.children.length; i++) {
+    if (i === idx) continue;
+    state.push({ url: document.getElementById(`figma-url-${i}`).value, image: images[i] });
+  }
+  images = state.map(s => s.image);
+  rows.innerHTML = '';
+  document.getElementById('preview-scroll').innerHTML = '';
+  state.forEach((s, newIdx) => {
+    const row = createFigmaRow(newIdx);
+    rows.appendChild(row);
+    document.getElementById(`figma-url-${newIdx}`).value = s.url;
+    document.getElementById(`figma-url-${newIdx}`).addEventListener('keydown', e => {
+      if (e.key === 'Enter') fetchFigmaImage(newIdx);
+    });
+    if (s.image) {
+      document.getElementById(`figma-url-${newIdx}`).disabled = true;
+      document.getElementById(`figma-fetch-btn-${newIdx}`).disabled = true;
+      document.getElementById(`row-dot-${newIdx}`).classList.add('loaded');
+      addPreviewCard(newIdx, s.image.dataUrl);
+    }
+  });
+  document.getElementById('add-row-btn').style.display = '';
+  updateFigmaTag(); checkRunnable();
+}
+
+function setPreview(idx, dataUrl, mimeType) {
+  images[idx] = { base64: dataUrl.split(',')[1], type: mimeType || 'image/png', dataUrl };
+  document.getElementById(`row-dot-${idx}`).classList.add('loaded');
+  document.getElementById(`figma-url-${idx}`).disabled = true;
+  document.getElementById(`figma-fetch-btn-${idx}`).disabled = true;
+  addPreviewCard(idx, dataUrl);
+  document.getElementById('figma-placeholder').style.display = 'none';
+  document.getElementById('preview-scroll').style.display = 'flex';
+  updateFigmaTag(); checkRunnable();
+}
+
+function addPreviewCard(idx, dataUrl) {
+  document.getElementById(`preview-card-${idx}`)?.remove();
+  const card = document.createElement('div');
+  card.className = 'preview-card';
+  card.id = `preview-card-${idx}`;
+  card.innerHTML = `<img src="${dataUrl}" alt="Frame ${idx + 1}">
+    <button class="remove-btn" onclick="removeImage(${idx})" aria-label="이미지 제거">✕</button>`;
+  // 순서 유지하며 삽입
+  const scroll = document.getElementById('preview-scroll');
+  const cards = scroll.querySelectorAll('.preview-card');
+  let inserted = false;
+  for (const c of cards) {
+    if (parseInt(c.id.split('-')[2]) > idx) { scroll.insertBefore(card, c); inserted = true; break; }
+  }
+  if (!inserted) scroll.appendChild(card);
+}
+
+function removeImage(idx) {
+  images[idx] = null;
+  document.getElementById(`row-dot-${idx}`).classList.remove('loaded');
+  document.getElementById(`figma-url-${idx}`).disabled = false;
+  document.getElementById(`figma-fetch-btn-${idx}`).disabled = false;
+  document.getElementById(`preview-card-${idx}`)?.remove();
+  const hasImages = images.some(Boolean);
+  document.getElementById('preview-scroll').style.display = hasImages ? 'flex' : 'none';
+  document.getElementById('figma-placeholder').style.display = hasImages ? 'none' : 'flex';
+  updateFigmaTag(); checkRunnable();
+}
+
+function updateFigmaTag() {
+  const count = images.filter(Boolean).length;
+  const tag = document.getElementById('figma-tag');
+  tag.textContent = count > 0 ? `${count}개 로드됨 ✓` : '로드됨 ✓';
+  tag.classList.toggle('visible', count > 0);
 }
 
 // ── Prompt building ─────────────────────────────
@@ -1148,7 +1244,7 @@ function buildUserText() {
   const parts = [];
   if (fieldData.common)  parts.push(`## 공통 정책\n${fieldData.common}`);
   if (fieldData.policy)  parts.push(`## Policy\n${fieldData.policy}`);
-  parts.push(`[필수 준수] 위 와이어프레임 이미지에서 번호 annotation이 명시된 항목에 대해서만 Description을 작성해줘. annotation 번호가 없는 항목은 절대 작성하지 않는다. 이 규칙은 다른 모든 지침보다 우선한다.
+  parts.push(`[필수 준수] 위 와이어프레임 이미지(여러 장인 경우 순서대로)에서 번호 annotation이 명시된 항목에 대해서만 Description을 작성해줘. annotation 번호가 없는 항목은 절대 작성하지 않는다. 이미지가 여러 장인 경우 각 이미지의 annotation 번호를 이어서 작성한다 (예: 화면1에 1·2, 화면2에 3·4 → 1→2→3→4 순서). 이 규칙은 다른 모든 지침보다 우선한다.
 
 아래 형식을 반드시 지켜서 출력해줘:
 
@@ -1200,6 +1296,15 @@ async function callGemini() {
 
 async function callClaude() {
   const apiKey = localStorage.getItem('anthropic_api_key');
+  const loadedImages = images.filter(Boolean);
+
+  const contentBlocks = [];
+  loadedImages.forEach((img, i) => {
+    if (loadedImages.length > 1) contentBlocks.push({ type: 'text', text: `[화면 ${i + 1}]` });
+    contentBlocks.push({ type: 'image', source: { type: 'base64', media_type: img.type, data: img.base64 } });
+  });
+  contentBlocks.push({ type: 'text', text: buildUserText() });
+
   const res = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: {
@@ -1209,16 +1314,10 @@ async function callClaude() {
       'anthropic-dangerous-direct-browser-access': 'true'
     },
     body: JSON.stringify({
-      model: 'claude-sonnet-4-5',
-      max_tokens: 2000,
+      model: 'claude-sonnet-4-6',
+      max_tokens: 4000,
       system: getSystemPrompt(),
-      messages: [{
-        role: 'user',
-        content: [
-          { type: 'image', source: { type: 'base64', media_type: imageType, data: imageBase64 } },
-          { type: 'text',  text: buildUserText() }
-        ]
-      }]
+      messages: [{ role: 'user', content: contentBlocks }]
     })
   });
   const data = await res.json();
@@ -1229,7 +1328,7 @@ async function callClaude() {
 // ── Generate ────────────────────────────────────
 async function generate() {
   if (!localStorage.getItem('anthropic_api_key')) { showError('⚙ 설정에서 Claude API Key를 먼저 입력해줘.'); return; }
-  if (!imageBase64) { showError('이미지를 먼저 가져와줘.'); return; }
+  if (!images.some(Boolean)) { showError('이미지를 먼저 가져와줘.'); return; }
 
   hideError();
   document.getElementById('run-btn').disabled = true;
@@ -1267,7 +1366,7 @@ function showError(msg) {
 }
 function hideError() { document.getElementById('error-msg').style.display = 'none'; }
 function checkRunnable() {
-  const ok = !!imageBase64;
+  const ok = images.some(Boolean);
   document.getElementById('run-btn').disabled = !ok;
   document.getElementById('run-btn-wrap').classList.toggle('show-tooltip', !ok);
 }
@@ -1372,31 +1471,14 @@ function setGhStatus(msg, isError) {
   });
 });
 
-// Figma URL: Enter to fetch
-document.getElementById('figma-url').addEventListener('keydown', e => {
-  if (e.key === 'Enter') fetchFigmaImage();
-});
-
-// Clipboard paste (image)
-document.addEventListener('paste', e => {
-  const items = e.clipboardData?.items;
-  if (!items) return;
-  for (const item of items) {
-    if (item.type.startsWith('image/')) {
-      const file   = item.getAsFile();
-      const reader = new FileReader();
-      reader.onload = ev => {
-        imageBase64 = ev.target.result.split(',')[1];
-        imageType   = file.type;
-        setPreview(ev.target.result);
-      };
-      reader.readAsDataURL(file);
-      break;
-    }
-  }
-});
-
 // ── Init ─────────────────────────────────────────
+// 첫 번째 Figma URL 행 생성
+images.push(null);
+document.getElementById('figma-rows').appendChild(createFigmaRow(0));
+document.getElementById('figma-url-0').addEventListener('keydown', e => {
+  if (e.key === 'Enter') fetchFigmaImage(0);
+});
+
 initAutoLoad();
 </script>
 </body>
