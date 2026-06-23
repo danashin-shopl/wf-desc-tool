@@ -488,6 +488,12 @@
     transition: background 0.1s;
   }
   .browse-btn:hover { background: #eaeaea; }
+  .policy-file-label {
+    font-size: 10px; color: #888; margin-top: 3px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    display: none;
+  }
+  .policy-file-label.visible { display: block; }
   .url-input[readonly] {
     color: #9a9a9a; cursor: default;
     background: #f6f6f6;
@@ -498,6 +504,7 @@
     background: #f6f6f6; opacity: 1;
   }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
 
@@ -603,10 +610,16 @@
         </div>
         <div class="url-row">
           <input type="text" class="url-input" id="policy-path" placeholder="경로/기능명.md">
-          <button class="browse-btn" id="policy-browse-btn" onclick="openBrowser('policy')" title="파일 탐색">
+          <button class="browse-btn" id="policy-browse-btn" onclick="openBrowser('policy')" title="GitHub 파일 탐색">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
           </button>
+          <button class="browse-btn" onclick="document.getElementById('policy-file-input').click()" title="로컬 파일 업로드 (.xlsx, .csv)">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          </button>
+          <input type="file" id="policy-file-input" accept=".xlsx,.xls,.csv" style="display:none"
+            onchange="handlePolicyFileUpload(this.files[0]); this.value=''">
         </div>
+        <div class="policy-file-label" id="policy-file-label"></div>
       </div>
 
       <!-- 작성 지침 -->
@@ -1073,6 +1086,62 @@ function updateStatusDot(field) {
   const loaded = !!fieldData[field];
   document.getElementById(`${field}-dot`).classList.toggle('loaded', loaded);
   document.getElementById(`badge-${field}`).classList.toggle('loaded', loaded);
+}
+
+async function handlePolicyFileUpload(file) {
+  if (!file) return;
+  const ext = file.name.split('.').pop().toLowerCase();
+  const label = document.getElementById('policy-file-label');
+
+  try {
+    let text = '';
+    if (ext === 'csv') {
+      text = await file.text();
+      text = csvToMarkdownTable(text);
+    } else if (ext === 'xlsx' || ext === 'xls') {
+      if (typeof XLSX === 'undefined') throw new Error('XLSX 라이브러리를 불러오지 못했어요. 잠시 후 다시 시도해줘.');
+      const buf = await file.arrayBuffer();
+      const wb = XLSX.read(buf, { type: 'array' });
+      const sheets = wb.SheetNames.map(name => {
+        const ws = wb.Sheets[name];
+        const csv = XLSX.utils.sheet_to_csv(ws, { skipHidden: true });
+        const table = csvToMarkdownTable(csv);
+        return wb.SheetNames.length > 1 ? `### ${name}\n${table}` : table;
+      });
+      text = sheets.join('\n\n');
+    } else {
+      throw new Error('.xlsx, .xls, .csv 파일만 지원해.');
+    }
+
+    fieldData.policy = text;
+    // GitHub 경로 입력 비우고 파일명 표시
+    document.getElementById('policy-path').value = '';
+    label.textContent = `📎 ${file.name}`;
+    label.classList.add('visible');
+    updateStatusDot('policy');
+  } catch (err) {
+    alert(`파일 읽기 실패: ${err.message}`);
+  }
+}
+
+function csvToMarkdownTable(csv) {
+  const rows = csv.trim().split('\n').map(r => {
+    // 쉼표 구분 (큰따옴표로 감싸진 필드 처리)
+    const cells = [];
+    let cur = '', inQ = false;
+    for (const ch of r) {
+      if (ch === '"') { inQ = !inQ; }
+      else if (ch === ',' && !inQ) { cells.push(cur.trim()); cur = ''; }
+      else cur += ch;
+    }
+    cells.push(cur.trim());
+    return cells;
+  }).filter(r => r.some(c => c));
+  if (!rows.length) return '';
+  const header = `| ${rows[0].join(' | ')} |`;
+  const sep    = `| ${rows[0].map(() => '---').join(' | ')} |`;
+  const body   = rows.slice(1).map(r => `| ${r.join(' | ')} |`).join('\n');
+  return [header, sep, body].filter(Boolean).join('\n');
 }
 
 // 저장된 경로 복원 + 자동 불러오기
