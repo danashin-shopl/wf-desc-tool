@@ -1262,7 +1262,7 @@ async function fetchFigmaImage(idx) {
   dot.classList.add('loading');
 
   try {
-    const apiUrl = `https://api.figma.com/v1/images/${parsed.fileKey}?ids=${encodeURIComponent(parsed.nodeId)}&format=png&scale=2`;
+    const apiUrl = `https://api.figma.com/v1/images/${parsed.fileKey}?ids=${encodeURIComponent(parsed.nodeId)}&format=png&scale=1`;
     const apiRes = await fetch(apiUrl, { headers: { 'X-Figma-Token': token } });
     if (!apiRes.ok) {
       const err = await apiRes.json().catch(() => ({}));
