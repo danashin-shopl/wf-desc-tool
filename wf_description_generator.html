@@ -159,12 +159,15 @@
     flex-shrink: 0;
     background: #fff; border-radius: 10px;
     border: 0.5px solid #eaeaea;
-    padding: 10px 14px;
-    display: flex; flex-direction: column; gap: 7px;
+    padding: 8px 12px;
+    display: flex; flex-direction: column; gap: 5px;
   }
   .figma-section-label {
     display: flex; align-items: center; gap: 7px;
     font-size: 11px; color: #9a9a9a; font-weight: 500;
+  }
+  .figma-btn-row {
+    display: flex; gap: 6px; align-items: center; margin-top: 1px;
   }
   .figma-tag {
     font-size: 10px; padding: 1px 7px; border-radius: 20px;
@@ -217,11 +220,11 @@
   .figma-row-dot.loaded { background: #3cb043; }
   .remove-row-btn { width: 20px; height: 20px; border: none; background: none; cursor: pointer; color: #ccc; font-size: 13px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; padding: 0; }
   .remove-row-btn:hover { color: #e24b4a; }
-  .add-row-btn { margin-top: 5px; font-size: 11px; color: #3299fe; background: none; border: none; cursor: pointer; padding: 0; font-family: inherit; }
+  .add-row-btn { font-size: 11px; color: #3299fe; background: none; border: none; cursor: pointer; padding: 0; font-family: inherit; white-space: nowrap; flex-shrink: 0; }
   .add-row-btn:hover { text-decoration: underline; }
   .figma-row-dot.loading { background: #f5a623; }
   .fetch-all-btn {
-    margin-top: 4px; width: 100%; padding: 6px;
+    flex: 1; padding: 5px;
     background: #f6f6f6; border: 0.5px solid #ddd; border-radius: 6px;
     font-size: 11px; font-family: inherit; cursor: pointer; color: #555;
     transition: background 0.1s;
@@ -654,8 +657,10 @@
         <span class="figma-tag" id="figma-tag">로드됨 ✓</span>
       </div>
       <div class="figma-rows" id="figma-rows"></div>
-      <button class="add-row-btn" id="add-row-btn" onclick="addFigmaRow()">+ URL 추가</button>
-      <button class="fetch-all-btn" id="fetch-all-btn" onclick="fetchAllFigmaImages()" disabled>가져오기</button>
+      <div class="figma-btn-row">
+        <button class="add-row-btn" id="add-row-btn" onclick="addFigmaRow()">+ URL 추가</button>
+        <button class="fetch-all-btn" id="fetch-all-btn" onclick="fetchAllFigmaImages()" disabled>가져오기</button>
+      </div>
     </div>
 
     <!-- 추가 컨텍스트 -->
