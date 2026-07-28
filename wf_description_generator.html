@@ -663,7 +663,7 @@
           </div>
         </div>
         <div class="url-row">
-          <input type="text" class="url-input" id="guide-path" value="shopl-pm/tools/rules_description.md" readonly title="작성 지침 경로는 고정되어 있습니다.">
+          <input type="text" class="url-input" id="guide-path" value="tools/rules_description.md" readonly title="작성 지침 경로는 고정되어 있습니다.">
         </div>
       </div>
 
@@ -1083,7 +1083,7 @@ function decodeBase64Utf8(b64) {
   return new TextDecoder('utf-8').decode(bytes);
 }
 
-async function fetchGithubFile(field) {
+async function fetchGithubFile(field, silent = false) {
   const githubPat  = localStorage.getItem('github_pat');
   const githubRepo = localStorage.getItem('github_repo');
 
@@ -1118,7 +1118,7 @@ async function fetchGithubFile(field) {
     fieldData[field] = decodeBase64Utf8(data.content);
     updateStatusDot(field);
   } catch (err) {
-    alert(`불러오기 실패:\n${err.message}`);
+    if (!silent) alert(`불러오기 실패:\n${err.message}`);
     fieldData[field] = '';
     updateStatusDot(field);
   } finally {
@@ -1206,7 +1206,7 @@ async function initAutoLoad() {
         // 폴더 모드: trailing slash 제거 후 selectFolder
         await selectFolder(f, path === '/' ? '' : path.slice(0, -1));
       } else {
-        await fetchGithubFile(f);
+        await fetchGithubFile(f, true);
       }
     } catch (_) {}
   }
