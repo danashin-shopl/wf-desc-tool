@@ -665,7 +665,7 @@
           </div>
         </div>
         <div class="url-row">
-          <input type="text" class="url-input" id="guide-path" placeholder="경로/작성지침.md" readonly title="작성 지침 경로는 고정되어 있습니다.">
+          <input type="text" class="url-input" id="guide-path" value="shopl-pm/tools/rules_description.md" readonly title="작성 지침 경로는 고정되어 있습니다.">
         </div>
       </div>
 
@@ -1192,7 +1192,7 @@ function csvToMarkdownTable(csv) {
 
 // 저장된 경로 복원 + 자동 불러오기
 async function initAutoLoad() {
-  ['common', 'policy', 'guide'].forEach(f => {
+  ['common', 'policy'].forEach(f => {
     const saved = localStorage.getItem(`ctx_${f}_path`);
     if (saved) document.getElementById(`${f}-path`).value = saved;
   });
