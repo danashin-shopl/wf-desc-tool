@@ -156,16 +156,14 @@
 
   /* ── Figma Input ─────────────────────────── */
   .figma-section {
-    flex-shrink: 0;
     background: #fff; border-radius: 10px;
     border: 0.5px solid #eaeaea;
     padding: 8px 12px;
-    display: flex; flex-direction: row; align-items: center; gap: 8px;
+    display: flex; flex-direction: column; gap: 6px;
   }
   .figma-section-label {
-    display: flex; align-items: center; gap: 6px;
+    display: flex; align-items: center; gap: 7px;
     font-size: 11px; color: #9a9a9a; font-weight: 500;
-    white-space: nowrap; flex-shrink: 0;
   }
   .figma-btn-row {
     display: flex; gap: 6px; align-items: center; margin-top: 1px;
@@ -212,13 +210,13 @@
   .remove-btn:hover { background: #f6f6f6; }
 
   /* Multi-URL rows */
-  .figma-rows { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px; }
+  .figma-rows { display: flex; flex-direction: column; gap: 5px; }
   .figma-row { display: flex; align-items: center; gap: 5px; }
   .figma-row-dot { width: 7px; height: 7px; border-radius: 50%; background: #e0e0e0; flex-shrink: 0; transition: background 0.2s; }
   .figma-row-dot.loaded { background: #3cb043; }
   .figma-row-dot.loading { background: #f5a623; }
   .fetch-all-btn {
-    flex-shrink: 0; width: auto; padding: 5px 10px;
+    width: 100%; padding: 5px;
     background: #f6f6f6; border: 0.5px solid #ddd; border-radius: 6px;
     font-size: 11px; font-family: inherit; cursor: pointer; color: #555;
     transition: background 0.1s;
