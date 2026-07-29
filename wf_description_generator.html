@@ -252,15 +252,18 @@
   .wf-inner-grid {
     display: grid;
     grid-template-columns: 0.9fr 1.1fr;
+    grid-template-rows: auto 1fr;
     gap: 10px;
     flex: 1;
     min-height: 0;
     overflow: hidden;
   }
-  .wf-left-panel, .wf-right-panel {
-    display: flex; flex-direction: column; gap: 10px;
-    overflow: hidden;
-  }
+  .wf-left-panel, .wf-right-panel { display: contents; }
+  .screen-info-wrap  { grid-column: 1; grid-row: 1; }
+  .additional-ctx-wrap { grid-column: 1; grid-row: 2; min-height: 0; }
+  .figma-section     { grid-column: 2; grid-row: 1; }
+  .figma-placeholder { grid-column: 2; grid-row: 2; }
+  .preview-scroll    { grid-column: 2; grid-row: 2; }
 
   .additional-ctx-wrap {
     flex: 1; min-height: 80px;
