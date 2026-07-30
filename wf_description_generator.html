@@ -1674,6 +1674,12 @@ function resetAll() {
   document.getElementById('preview-scroll').innerHTML = '';
   document.getElementById('preview-scroll').style.display = 'none';
   document.getElementById('figma-placeholder').style.display = 'flex';
+  // Policy 초기화
+  fieldData.policy = '';
+  document.getElementById('policy-path').value = '';
+  document.getElementById('policy-file-label').textContent = '';
+  localStorage.removeItem('ctx_policy_path');
+  updateStatusDot('policy');
   // 화면 정보 + 추가 컨텍스트 초기화
   document.getElementById('screen-title').value = '';
   document.getElementById('screen-entry').value = '';
