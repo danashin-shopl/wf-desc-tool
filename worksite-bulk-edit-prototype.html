@@ -221,14 +221,13 @@
           <div class="dash-tabs"><span class="active">현황</span><span>설정</span></div>
           <div class="dash-toprow">
             <div class="dash-count">근무지 224</div>
-            <div style="position:relative;">
+            <div style="position:relative;display:flex;">
               <button class="btn btn-solid">+ 근무지 추가</button>
-              <button class="btn btn-line" id="btn-bulk">일괄 작업
-                <div class="bulk-menu" id="bulk-menu" hidden>
-                  <button id="btn-bulk-edit">일괄 수정</button>
-                  <button>일괄 비활성화</button>
-                </div>
-              </button>
+              <button class="btn btn-line" id="btn-bulk">일괄 작업</button>
+              <div class="bulk-menu" id="bulk-menu" hidden>
+                <button id="btn-bulk-add">일괄 추가</button>
+                <button id="btn-bulk-edit">일괄 수정</button>
+              </div>
             </div>
           </div>
           <div class="dash-cards">
@@ -714,6 +713,7 @@
       state.workplacePickerOpen = false; renderWorkplaceField();
     }
   });
+  $('btn-bulk-add').addEventListener('click', function(e){ e.stopPropagation(); closeBulkMenu(); });
   $('btn-bulk-edit').addEventListener('click', function(e){ e.stopPropagation(); closeBulkMenu(); openModal(); });
 
   $('btn-cancel').addEventListener('click', closeModal);
