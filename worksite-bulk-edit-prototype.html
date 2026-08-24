@@ -81,6 +81,34 @@
   .btn-outline{border:1px solid var(--border);background:#fff;color:var(--text-primary);border-radius:8px;padding:9px 18px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;}
   .btn-outline:disabled{color:var(--text-tertiary);cursor:not-allowed;}
   .btn-primary{border:none;background:var(--accent);color:#fff;border-radius:8px;padding:9px 18px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;}
+  .btn-primary:disabled{background:var(--accent-soft);color:#a9c3f7;cursor:not-allowed;}
+
+  /* 추가 정보 선택 모달 */
+  .item-modal{width:720px;max-height:80vh;background:#fff;border-radius:16px;box-shadow:0 24px 70px rgba(0,0,0,.4);display:flex;flex-direction:column;overflow:hidden;}
+  .item-modal-header{padding:22px 26px 16px;border-bottom:1px solid var(--border);}
+  .item-modal-title{font-size:16px;font-weight:800;}
+  .item-modal-body{display:flex;flex:1;min-height:0;}
+  .item-modal-categories{width:170px;flex-shrink:0;border-right:1px solid var(--border);padding:14px 10px;overflow-y:auto;}
+  .category-row{padding:9px 12px;border-radius:8px;font-size:12.5px;color:var(--text-secondary);cursor:pointer;margin-bottom:2px;}
+  .category-row:hover{background:#f4f6fb;}
+  .category-row.active{background:var(--accent-soft);color:var(--accent);font-weight:700;}
+  .item-modal-list-pane{flex:1;min-width:0;display:flex;flex-direction:column;padding:16px 22px;}
+  .item-modal-search{display:flex;align-items:center;gap:8px;border:1px solid var(--border);border-radius:8px;padding:9px 12px;margin-bottom:12px;color:var(--text-tertiary);flex-shrink:0;}
+  .item-modal-search input{border:none;outline:none;flex:1;font-size:12.5px;font-family:inherit;color:var(--text-primary);}
+  .item-modal-list{flex:1;overflow-y:auto;}
+  .item-row{display:flex;align-items:center;gap:10px;padding:11px 6px;border-bottom:1px solid #f1f2f4;cursor:pointer;}
+  .item-row:last-child{border-bottom:none;}
+  .item-row-name{font-size:13px;color:var(--text-primary);}
+  .item-row-type{margin-left:auto;font-size:9.5px;font-weight:800;padding:2px 7px;border-radius:5px;flex-shrink:0;}
+  .item-row-type.photo{background:#e9f0ff;color:var(--accent);}
+  .item-row-type.document{background:#fff1e8;color:#c2540c;}
+  .radio{width:16px;height:16px;border-radius:999px;border:1.5px solid #cbd2dc;flex-shrink:0;position:relative;}
+  .radio.checked{border-color:var(--accent);}
+  .radio.checked::after{content:"";position:absolute;inset:3px;border-radius:999px;background:var(--accent);}
+  .item-modal-empty{padding:36px 10px;text-align:center;color:var(--text-tertiary);font-size:12.5px;}
+  .item-modal-footer{display:flex;align-items:center;justify-content:space-between;padding:16px 26px;border-top:1px solid var(--border);flex-shrink:0;}
+  .item-modal-count{font-size:12.5px;color:var(--text-secondary);}
+  .item-modal-count b{color:var(--text-primary);}
 
   /* upload page */
   .page-header{height:56px;background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 24px;}
@@ -269,7 +297,6 @@
                     <span id="item-field-text">선택</span>
                     <svg class="icon arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
                   </div>
-                  <div class="dropdown-panel" id="item-picker" hidden></div>
                 </div>
 
                 <div class="field">
@@ -325,6 +352,32 @@
       </div>
     </div>
   </div>
+
+  <!-- 추가 정보 선택 MODAL -->
+  <div class="overlay" id="item-modal-overlay" hidden>
+    <div class="item-modal">
+      <div class="item-modal-header">
+        <div class="item-modal-title">추가 정보 선택</div>
+      </div>
+      <div class="item-modal-body">
+        <div class="item-modal-categories" id="item-modal-categories"></div>
+        <div class="item-modal-list-pane">
+          <div class="item-modal-search">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+            <input type="text" id="item-modal-search-input" placeholder="검색">
+          </div>
+          <div class="item-modal-list" id="item-modal-list"></div>
+        </div>
+      </div>
+      <div class="item-modal-footer">
+        <div class="item-modal-count" id="item-modal-count">선택됨 0 / 1</div>
+        <div class="modal-actions">
+          <button class="btn-outline" id="item-modal-cancel">취소</button>
+          <button class="btn-primary" id="item-modal-apply">적용</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <div class="toast" id="toast" hidden>
@@ -356,6 +409,12 @@
     {id:'media', title:'추가 정보', desc:"추가 정보 중 '사진', '문서' 유형의 데이터"},
   ];
 
+  var CATEGORIES = [
+    {id:'all', name:'전체'},
+    {id:'photo', name:'사진 유형'},
+    {id:'document', name:'문서 유형'},
+  ];
+
   var state = {
     modalSelected: 'media',
     selectedItemId: null,
@@ -363,7 +422,10 @@
     files: [],
     warning: null,
     workplacePickerOpen: false,
-    itemPickerOpen: false,
+    itemModalOpen: false,
+    itemModalCategory: 'all',
+    itemModalQuery: '',
+    itemModalDraft: null,
   };
 
   var $ = function(id){ return document.getElementById(id); };
@@ -388,7 +450,7 @@
     state.files = [];
     state.warning = null;
     state.workplacePickerOpen = false;
-    state.itemPickerOpen = false;
+    state.itemModalOpen = false;
   }
 
   function openModal(){
@@ -447,28 +509,85 @@
     var item = selectedItem();
     $('item-field-text').textContent = item ? item.name : '선택';
     $('item-field').classList.toggle('placeholder', !item);
+  }
 
-    var panel = $('item-picker');
-    panel.hidden = !state.itemPickerOpen;
-    panel.innerHTML = '';
-    ['photo','document'].forEach(function(type){
-      var label = document.createElement('div');
-      label.className = 'dropdown-group-label';
-      label.textContent = type === 'photo' ? '사진 유형' : '문서 유형';
-      panel.appendChild(label);
-      ITEMS.filter(function(i){ return i.type === type; }).forEach(function(i){
-        var row = document.createElement('div');
-        row.className = 'dropdown-row' + (state.selectedItemId === i.id ? ' is-picked' : '');
-        row.textContent = i.name;
-        row.addEventListener('click', function(){
-          state.selectedItemId = i.id;
-          state.itemPickerOpen = false;
-          state.warning = null;
-          renderUpload();
-        });
-        panel.appendChild(row);
+  // ---------- 추가 정보 선택 모달 ----------
+  function openItemModal(){
+    state.itemModalOpen = true;
+    state.itemModalCategory = 'all';
+    state.itemModalQuery = '';
+    state.itemModalDraft = state.selectedItemId;
+    $('item-modal-search-input').value = '';
+    renderItemModal();
+    $('item-modal-overlay').hidden = false;
+  }
+  function closeItemModal(){
+    state.itemModalOpen = false;
+    $('item-modal-overlay').hidden = true;
+  }
+  function applyItemModal(){
+    if (!state.itemModalDraft) return;
+    if (state.itemModalDraft !== state.selectedItemId) state.warning = null;
+    state.selectedItemId = state.itemModalDraft;
+    closeItemModal();
+    renderUpload();
+  }
+
+  function renderItemModal(){
+    var catPane = $('item-modal-categories');
+    catPane.innerHTML = '';
+    CATEGORIES.forEach(function(cat){
+      var row = document.createElement('div');
+      row.className = 'category-row' + (state.itemModalCategory === cat.id ? ' active' : '');
+      row.textContent = cat.name;
+      row.addEventListener('click', function(){
+        state.itemModalCategory = cat.id;
+        renderItemModal();
       });
+      catPane.appendChild(row);
     });
+
+    var query = state.itemModalQuery.trim().toLowerCase();
+    var filtered = ITEMS.filter(function(i){
+      var inCategory = state.itemModalCategory === 'all' || i.type === state.itemModalCategory;
+      var inQuery = !query || i.name.toLowerCase().indexOf(query) !== -1;
+      return inCategory && inQuery;
+    });
+
+    var list = $('item-modal-list');
+    list.innerHTML = '';
+    if (!filtered.length) {
+      var empty = document.createElement('div');
+      empty.className = 'item-modal-empty';
+      empty.textContent = '검색 결과가 없습니다.';
+      list.appendChild(empty);
+    } else {
+      filtered.forEach(function(i){
+        var checked = state.itemModalDraft === i.id;
+        var row = document.createElement('div');
+        row.className = 'item-row';
+        var radio = document.createElement('span');
+        radio.className = 'radio' + (checked ? ' checked' : '');
+        var name = document.createElement('span');
+        name.className = 'item-row-name';
+        name.textContent = i.name;
+        var typeTag = document.createElement('span');
+        typeTag.className = 'item-row-type ' + i.type;
+        typeTag.textContent = i.type === 'photo' ? '사진' : '문서';
+        row.appendChild(radio);
+        row.appendChild(name);
+        row.appendChild(typeTag);
+        row.addEventListener('click', function(){
+          state.itemModalDraft = i.id;
+          renderItemModal();
+        });
+        list.appendChild(row);
+      });
+    }
+
+    var countEl = $('item-modal-count');
+    countEl.innerHTML = '선택됨 <b>' + (state.itemModalDraft ? 1 : 0) + '</b> / 1';
+    $('item-modal-apply').disabled = !state.itemModalDraft;
   }
 
   function renderWorkplaceField(){
@@ -707,9 +826,6 @@
   $('btn-bulk').addEventListener('click', openBulkMenu);
   document.addEventListener('click', function(e){
     if (!$('bulk-menu').hidden && !$('btn-bulk').contains(e.target)) closeBulkMenu();
-    if (state.itemPickerOpen && !$('item-field').contains(e.target) && !$('item-picker').contains(e.target)) {
-      state.itemPickerOpen = false; renderItemField();
-    }
     if (state.workplacePickerOpen && !$('workplace-field').contains(e.target) && !$('workplace-picker').contains(e.target)) {
       state.workplacePickerOpen = false; renderWorkplaceField();
     }
@@ -724,14 +840,17 @@
 
   $('item-field').addEventListener('click', function(e){
     e.stopPropagation();
-    state.itemPickerOpen = !state.itemPickerOpen;
-    state.workplacePickerOpen = false;
-    renderUpload();
+    openItemModal();
+  });
+  $('item-modal-cancel').addEventListener('click', closeItemModal);
+  $('item-modal-apply').addEventListener('click', applyItemModal);
+  $('item-modal-search-input').addEventListener('input', function(e){
+    state.itemModalQuery = e.target.value;
+    renderItemModal();
   });
   $('workplace-field').addEventListener('click', function(e){
     e.stopPropagation();
     state.workplacePickerOpen = !state.workplacePickerOpen;
-    state.itemPickerOpen = false;
     renderUpload();
   });
 
