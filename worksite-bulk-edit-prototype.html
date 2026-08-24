@@ -12,19 +12,17 @@
   html,body{margin:0;padding:0;height:100%;}
   body{
     font-family:'Pretendard',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;
-    background:#e9eaed;
+    background:var(--content-bg);
     color:var(--text-primary);
     font-size:13px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    min-height:100vh;
+    height:100%;
+    overflow:hidden;
   }
   a{color:var(--accent);}
   .icon{display:block;flex-shrink:0;}
   .stage-note{position:fixed;top:14px;left:50%;transform:translateX(-50%);font-size:11.5px;color:#6b7280;background:#fff;border:1px solid var(--border);padding:6px 12px;border-radius:999px;box-shadow:0 4px 14px rgba(16,24,40,.08);z-index:100;}
 
-  .app-shell{width:1360px;height:820px;background:var(--content-bg);position:relative;overflow:hidden;border-radius:14px;box-shadow:0 30px 80px rgba(15,16,20,.35);}
+  .app-shell{width:100%;height:100%;min-width:1100px;min-height:600px;background:var(--content-bg);position:relative;overflow:hidden;}
   .topbar{height:52px;background:var(--topbar-bg);display:flex;align-items:center;justify-content:space-between;padding:0 20px;color:#fff;position:relative;z-index:2;}
   .topbar-left{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;color:#e7e8ec;}
   .topbar-right{display:flex;align-items:center;gap:16px;}
@@ -34,7 +32,7 @@
   .lang{display:flex;align-items:center;gap:5px;color:#c7cad3;font-size:12.5px;}
   .avatar{width:28px;height:28px;border-radius:999px;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;}
 
-  .body-row{display:flex;height:768px;}
+  .body-row{display:flex;height:calc(100% - 52px);}
   .sidebar{width:220px;background:var(--sidebar-bg);flex-shrink:0;padding:14px 10px;display:flex;flex-direction:column;}
   .nav-solo{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;color:#fff;font-size:13px;font-weight:700;margin-bottom:16px;}
   .nav-scroll{flex:1;}
