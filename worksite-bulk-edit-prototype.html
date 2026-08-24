@@ -20,7 +20,6 @@
   }
   a{color:var(--accent);}
   .icon{display:block;flex-shrink:0;}
-  .stage-note{position:fixed;top:14px;left:50%;transform:translateX(-50%);font-size:11.5px;color:#6b7280;background:#fff;border:1px solid var(--border);padding:6px 12px;border-radius:999px;box-shadow:0 4px 14px rgba(16,24,40,.08);z-index:100;}
 
   .app-shell{width:100%;height:100%;min-width:1100px;min-height:600px;background:var(--content-bg);position:relative;overflow:hidden;}
   .topbar{height:52px;background:var(--topbar-bg);display:flex;align-items:center;justify-content:space-between;padding:0 20px;color:#fff;position:relative;z-index:2;}
@@ -55,10 +54,10 @@
   .dash-count{font-size:20px;font-weight:800;}
   .btn{border:none;cursor:pointer;font-family:inherit;}
   .btn-solid{background:var(--accent);color:#fff;border-radius:8px;padding:8px 14px;font-size:12.5px;font-weight:700;}
-  .btn-line{border:1px solid var(--border);background:#fff;border-radius:8px;padding:8px 14px;font-size:12.5px;font-weight:700;color:var(--text-secondary);margin-left:8px;position:relative;cursor:pointer;}
+  .btn-line{display:flex;align-items:center;gap:6px;border:1px solid var(--border);background:#fff;border-radius:8px;padding:8px 14px;font-size:12.5px;font-weight:700;color:var(--text-secondary);margin-left:8px;position:relative;cursor:pointer;}
   .bulk-menu{position:absolute;top:calc(100% + 6px);right:0;background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:0 12px 28px rgba(16,24,40,.14);padding:6px;min-width:150px;z-index:5;}
   .bulk-menu[hidden]{display:none;}
-  .bulk-menu button{display:block;width:100%;text-align:left;background:none;padding:8px 10px;border-radius:7px;font-size:12.5px;color:var(--text-primary);cursor:pointer;font-family:inherit;}
+  .bulk-menu button{display:block;width:100%;text-align:left;background:none;border:none;padding:8px 10px;border-radius:7px;font-size:12.5px;color:var(--text-primary);cursor:pointer;font-family:inherit;}
   .bulk-menu button:hover{background:#f4f6fb;}
   .dash-cards{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px;}
   .dash-card{background:#fff;border:1px solid var(--border);border-radius:12px;height:118px;padding:16px;}
@@ -76,7 +75,6 @@
   .option-card:hover{border-color:#c7d3ec;}
   .option-card.is-selected{border-color:var(--accent);background:var(--accent-soft);}
   .option-title{font-size:13.5px;font-weight:700;margin-bottom:5px;display:flex;align-items:center;gap:8px;}
-  .option-badge{font-size:10.5px;font-weight:700;color:var(--accent);background:#fff;border:1px solid var(--accent);border-radius:999px;padding:1px 8px;}
   .option-desc{font-size:12px;color:var(--text-secondary);line-height:1.55;}
   .modal-note{font-size:11.5px;color:var(--text-tertiary);margin-bottom:14px;min-height:14px;}
   .modal-actions{display:flex;justify-content:flex-end;gap:8px;}
@@ -151,7 +149,6 @@
   .toast .dot{width:18px;height:18px;border-radius:999px;background:var(--success);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 </style>
 
-<div class="stage-note">클릭으로 이동해볼 수 있는 프로토타입입니다 — 근무지 현황 &rarr; 일괄 작업 &rarr; 일괄 수정</div>
 
 <div class="app-shell">
   <div class="topbar">
@@ -223,7 +220,9 @@
             <div class="dash-count">근무지 224</div>
             <div style="position:relative;display:flex;">
               <button class="btn btn-solid">+ 근무지 추가</button>
-              <button class="btn btn-line" id="btn-bulk">일괄 작업</button>
+              <button class="btn btn-line" id="btn-bulk">일괄 작업
+                <svg class="icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+              </button>
               <div class="bulk-menu" id="bulk-menu" hidden>
                 <button id="btn-bulk-add">일괄 추가</button>
                 <button id="btn-bulk-edit">일괄 수정</button>
@@ -261,7 +260,7 @@
               <div class="step-col">
                 <div class="step-pill">STEP 1</div>
                 <div class="step-title">근무지 및 추가 정보 선택</div>
-                <div class="step-desc">업로드할 추가 정보 항목과 근무지를 선택해주세요. 항목이 사진/문서 중 어떤 유형인지에 따라 STEP 2의 업로드 방식이 자동으로 결정됩니다.</div>
+                <div class="step-desc">업로드할 추가 정보 항목과 근무지를 선택해주세요.</div>
 
                 <div class="field">
                   <div class="field-label">추가 정보</div>
@@ -285,7 +284,7 @@
               <div class="step-col right">
                 <div class="step-pill">STEP 2</div>
                 <div class="step-title">파일 선택</div>
-                <div class="step-desc" id="step2-desc">먼저 STEP 1에서 추가 정보 항목을 선택해주세요.</div>
+                <div class="step-desc">추가할 파일을 업로드하세요.</div>
 
                 <div class="dropzone is-disabled" id="dropzone">
                   <input type="file" multiple id="file-input" disabled>
@@ -347,9 +346,9 @@
     xls:{label:'XLS', color:'#12805c'}, xlsx:{label:'XLS', color:'#12805c'},
   };
   var MODAL_OPTIONS = [
-    {id:'basic', title:'기본 및 고급 정보', isNew:false, desc:'근무지명, 주소 및 위치(위경도), 출퇴근 위치 인증 방법, 근무지 코드, 도 및 도시, 근무지 그룹, 등급, 유통사 및 채널'},
-    {id:'text', title:'추가 정보', isNew:false, desc:"추가 정보 중 '텍스트' 유형의 데이터"},
-    {id:'media', title:'추가 정보', isNew:true, desc:"추가 정보 중 '사진', '문서' 유형의 데이터"},
+    {id:'basic', title:'기본 및 고급 정보', desc:'근무지명, 주소 및 위치(위경도), 출퇴근 위치 인증 방법, 근무지 코드, 도 및 도시, 근무지 그룹, 등급, 유통사 및 채널'},
+    {id:'text', title:'추가 정보', desc:"추가 정보 중 '텍스트' 유형의 데이터"},
+    {id:'media', title:'추가 정보', desc:"추가 정보 중 '사진', '문서' 유형의 데이터"},
   ];
 
   var state = {
@@ -417,12 +416,6 @@
       var titleText = document.createElement('span');
       titleText.textContent = opt.title;
       title.appendChild(titleText);
-      if (opt.isNew) {
-        var badge = document.createElement('span');
-        badge.className = 'option-badge';
-        badge.textContent = 'NEW';
-        title.appendChild(badge);
-      }
       var desc = document.createElement('div');
       desc.className = 'option-desc';
       desc.textContent = opt.desc;
@@ -532,26 +525,22 @@
     var dz = $('dropzone');
     var input = $('file-input');
     var note = $('dropzone-note');
-    var desc = $('step2-desc');
 
     if (!item) {
       dz.classList.add('is-disabled');
       input.disabled = true;
       input.removeAttribute('accept');
       note.textContent = '추가 정보 항목을 먼저 선택해주세요.';
-      desc.textContent = '먼저 STEP 1에서 추가 정보 항목을 선택해주세요.';
     } else if (item.type === 'photo') {
       dz.classList.remove('is-disabled');
       input.disabled = false;
       input.setAttribute('accept','image/png,image/jpeg');
       note.textContent = '20MB 이하의 jpg, jpeg, png 파일만 업로드 할 수 있습니다. (최대 10장)';
-      desc.textContent = '업로드한 사진을 미리보기로 확인하고 등록할 수 있습니다.';
     } else {
       dz.classList.remove('is-disabled');
       input.disabled = false;
       input.setAttribute('accept','.pdf,.ppt,.pptx,.xlsx,.xls');
       note.textContent = '50MB 이하의 pdf, ppt, xlsx 등 문서 파일을 첨부할 수 있습니다. (최대 10개)';
-      desc.textContent = '업로드한 문서는 미리보기 없이 파일명과 용량으로 목록에 표시됩니다.';
     }
 
     $('warning-note').hidden = !state.warning;
