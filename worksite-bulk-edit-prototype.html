@@ -662,6 +662,8 @@
       browseBtn.disabled = false;
     }
 
+    dz.hidden = state.files.length > 0;
+
     $('warning-note').hidden = !state.warning;
     $('warning-text').textContent = state.warning || '';
 
