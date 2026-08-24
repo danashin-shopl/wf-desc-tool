@@ -1,0 +1,748 @@
+<title>근무지 일괄 수정 프로토타입</title>
+<style>
+  :root{
+    --sidebar-bg:#14161d; --sidebar-active-bg:#f4f5f7;
+    --sidebar-text:#a9adb8; --sidebar-text-dim:#6b6f7c; --sidebar-active-text:#14161d;
+    --topbar-bg:#0e1015; --content-bg:#f4f5f7; --border:#e6e7eb;
+    --text-primary:#14161d; --text-secondary:#6b7280; --text-tertiary:#9aa0ab;
+    --accent:#155eef; --accent-soft:#e9f0ff; --danger:#e5484d; --danger-soft:#fdeceb;
+    --success:#12805c;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;height:100%;}
+  body{
+    font-family:'Pretendard',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+    background:#e9eaed;
+    color:var(--text-primary);
+    font-size:13px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    min-height:100vh;
+  }
+  a{color:var(--accent);}
+  .icon{display:block;flex-shrink:0;}
+  .stage-note{position:fixed;top:14px;left:50%;transform:translateX(-50%);font-size:11.5px;color:#6b7280;background:#fff;border:1px solid var(--border);padding:6px 12px;border-radius:999px;box-shadow:0 4px 14px rgba(16,24,40,.08);z-index:100;}
+
+  .app-shell{width:1360px;height:820px;background:var(--content-bg);position:relative;overflow:hidden;border-radius:14px;box-shadow:0 30px 80px rgba(15,16,20,.35);}
+  .topbar{height:52px;background:var(--topbar-bg);display:flex;align-items:center;justify-content:space-between;padding:0 20px;color:#fff;position:relative;z-index:2;}
+  .topbar-left{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;color:#e7e8ec;}
+  .topbar-right{display:flex;align-items:center;gap:16px;}
+  .chip-inquiry{display:flex;align-items:center;gap:6px;background:#262a35;padding:6px 12px;border-radius:999px;font-size:12px;color:#fff;font-weight:600;}
+  .icon-btn{width:18px;height:18px;color:#9297a3;position:relative;}
+  .icon-btn .dot{position:absolute;top:-2px;right:-2px;width:6px;height:6px;border-radius:999px;background:#ff5470;border:1.5px solid var(--topbar-bg);}
+  .lang{display:flex;align-items:center;gap:5px;color:#c7cad3;font-size:12.5px;}
+  .avatar{width:28px;height:28px;border-radius:999px;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;}
+
+  .body-row{display:flex;height:768px;}
+  .sidebar{width:220px;background:var(--sidebar-bg);flex-shrink:0;padding:14px 10px;display:flex;flex-direction:column;}
+  .nav-solo{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;color:#fff;font-size:13px;font-weight:700;margin-bottom:16px;}
+  .nav-scroll{flex:1;}
+  .nav-section{margin-bottom:4px;}
+  .nav-section-label{display:flex;align-items:center;gap:5px;color:var(--sidebar-text-dim);font-size:11px;padding:9px 10px 5px;font-weight:600;}
+  .nav-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;color:var(--sidebar-text);font-size:12.5px;margin-bottom:1px;}
+  .nav-item.active{background:var(--sidebar-active-bg);color:var(--sidebar-active-text);font-weight:700;}
+  .sidebar-footer{border-top:1px solid #24272f;padding-top:12px;margin-top:8px;display:flex;align-items:center;justify-content:space-between;color:var(--sidebar-text);font-size:12.5px;}
+
+  .content{flex:1;position:relative;overflow:hidden;}
+  .panel-view{position:absolute;inset:0;overflow:auto;}
+  .panel-view[hidden]{display:none;}
+
+  /* dashboard */
+  .dash-pad{padding:22px 26px;}
+  .dash-tabs{display:flex;gap:22px;border-bottom:1px solid var(--border);margin-bottom:18px;font-size:13px;color:var(--text-tertiary);font-weight:600;}
+  .dash-tabs span{padding-bottom:10px;}
+  .dash-tabs span.active{color:var(--text-primary);border-bottom:2px solid var(--text-primary);}
+  .dash-toprow{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
+  .dash-count{font-size:20px;font-weight:800;}
+  .btn{border:none;cursor:pointer;font-family:inherit;}
+  .btn-solid{background:var(--accent);color:#fff;border-radius:8px;padding:8px 14px;font-size:12.5px;font-weight:700;}
+  .btn-line{border:1px solid var(--border);background:#fff;border-radius:8px;padding:8px 14px;font-size:12.5px;font-weight:700;color:var(--text-secondary);margin-left:8px;position:relative;cursor:pointer;}
+  .bulk-menu{position:absolute;top:calc(100% + 6px);right:0;background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:0 12px 28px rgba(16,24,40,.14);padding:6px;min-width:150px;z-index:5;}
+  .bulk-menu[hidden]{display:none;}
+  .bulk-menu button{display:block;width:100%;text-align:left;background:none;padding:8px 10px;border-radius:7px;font-size:12.5px;color:var(--text-primary);cursor:pointer;font-family:inherit;}
+  .bulk-menu button:hover{background:#f4f6fb;}
+  .dash-cards{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px;}
+  .dash-card{background:#fff;border:1px solid var(--border);border-radius:12px;height:118px;padding:16px;}
+  .skel{height:10px;border-radius:4px;background:#eceef1;}
+  .dash-table{background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+  .dash-row{display:grid;grid-template-columns:32px 1fr 1fr 1fr 1fr;gap:10px;padding:12px 16px;border-bottom:1px solid var(--border);align-items:center;}
+
+  /* modal */
+  .overlay{position:absolute;inset:0;background:rgba(15,16,20,.55);display:flex;align-items:center;justify-content:center;z-index:20;}
+  .overlay[hidden]{display:none;}
+  .modal{width:460px;background:#fff;border-radius:16px;padding:26px 26px 20px;box-shadow:0 24px 70px rgba(0,0,0,.4);}
+  .modal-title{font-size:16px;font-weight:800;margin-bottom:18px;}
+  .option-list{display:flex;flex-direction:column;gap:10px;margin-bottom:14px;}
+  .option-card{border:1.5px solid var(--border);border-radius:12px;padding:14px 16px;cursor:pointer;}
+  .option-card:hover{border-color:#c7d3ec;}
+  .option-card.is-selected{border-color:var(--accent);background:var(--accent-soft);}
+  .option-title{font-size:13.5px;font-weight:700;margin-bottom:5px;display:flex;align-items:center;gap:8px;}
+  .option-badge{font-size:10.5px;font-weight:700;color:var(--accent);background:#fff;border:1px solid var(--accent);border-radius:999px;padding:1px 8px;}
+  .option-desc{font-size:12px;color:var(--text-secondary);line-height:1.55;}
+  .modal-note{font-size:11.5px;color:var(--text-tertiary);margin-bottom:14px;min-height:14px;}
+  .modal-actions{display:flex;justify-content:flex-end;gap:8px;}
+  .btn-outline{border:1px solid var(--border);background:#fff;color:var(--text-primary);border-radius:8px;padding:9px 18px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;}
+  .btn-primary{border:none;background:var(--accent);color:#fff;border-radius:8px;padding:9px 18px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;}
+
+  /* upload page */
+  .page-header{height:56px;background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 24px;}
+  .page-title{display:flex;align-items:center;gap:10px;font-size:14.5px;font-weight:800;}
+  .page-title .back{width:16px;height:16px;color:var(--text-tertiary);cursor:pointer;}
+  .btn-save{display:flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;font-size:12.5px;font-weight:700;border:none;cursor:pointer;font-family:inherit;}
+  .btn-save.enabled{background:var(--accent);color:#fff;}
+  .btn-save.disabled{background:var(--accent-soft);color:#a9c3f7;cursor:not-allowed;}
+
+  .page-body{padding:24px;}
+  .panel{background:#fff;border:1px solid var(--border);border-radius:14px;box-shadow:0 1px 2px rgba(16,24,40,.05);}
+  .panel-header{padding:15px 20px;border-bottom:1px solid var(--border);font-size:13.5px;font-weight:800;}
+  .panel-body{display:grid;grid-template-columns:1fr 1fr;}
+  .step-col{padding:22px 24px;}
+  .step-col.right{border-left:1px solid var(--border);}
+  .step-pill{display:inline-flex;align-items:center;padding:3px 10px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-size:10.5px;font-weight:800;margin-bottom:10px;}
+  .step-title{font-size:14.5px;font-weight:800;margin-bottom:6px;}
+  .step-desc{font-size:12px;color:var(--text-secondary);margin-bottom:18px;line-height:1.55;}
+
+  .field{margin-bottom:18px;position:relative;}
+  .field-label{font-size:12px;font-weight:700;margin-bottom:7px;}
+  .field-box{min-height:40px;border:1px solid var(--border);border-radius:8px;padding:7px 10px;font-size:12.5px;cursor:pointer;background:#fff;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .field-box.placeholder{color:var(--text-tertiary);}
+  .field-box .arrow{margin-left:auto;color:var(--text-tertiary);flex-shrink:0;}
+  .chip{display:flex;align-items:center;gap:5px;background:var(--accent-soft);color:var(--accent);border-radius:6px;padding:4px 6px 4px 9px;font-size:11.5px;font-weight:700;}
+  .chip .x{width:12px;height:12px;cursor:pointer;}
+  .type-tag{font-size:9.5px;font-weight:800;padding:1px 6px;border-radius:5px;margin-left:auto;}
+  .type-tag.photo{background:#e9f0ff;color:var(--accent);}
+  .type-tag.document{background:#fff1e8;color:#c2540c;}
+
+  .dropdown-panel{position:absolute;top:calc(100% + 4px);left:0;right:0;background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:0 12px 28px rgba(16,24,40,.14);z-index:10;padding:6px;max-height:230px;overflow:auto;}
+  .dropdown-group-label{font-size:10.5px;font-weight:800;color:var(--text-tertiary);padding:8px 9px 4px;}
+  .dropdown-row{display:flex;align-items:center;gap:9px;padding:8px 9px;border-radius:7px;font-size:12.5px;cursor:pointer;}
+  .dropdown-row:hover{background:#f4f6fb;}
+  .dropdown-row.is-picked{color:var(--accent);font-weight:700;}
+  .checkbox{width:15px;height:15px;border-radius:4px;border:1.5px solid #cbd2dc;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#fff;}
+  .checkbox.checked{background:var(--accent);border-color:var(--accent);}
+
+  .dropzone{border:1.5px dashed #cdd3e0;border-radius:12px;padding:26px 16px;text-align:center;position:relative;background:#fafbfc;}
+  .dropzone.is-disabled{opacity:.55;}
+  .dropzone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;}
+  .dropzone.is-disabled input[type=file]{cursor:not-allowed;pointer-events:none;}
+  .dropzone-icon{color:var(--text-tertiary);margin-bottom:10px;}
+  .dropzone-text{font-size:12px;color:var(--text-secondary);}
+  .dropzone-note{display:flex;align-items:center;gap:7px;background:#f0f2f6;border-radius:8px;padding:8px 10px;margin-top:12px;font-size:11px;color:var(--text-secondary);text-align:left;}
+
+  .warning-note{display:flex;align-items:center;justify-content:space-between;gap:8px;background:var(--danger-soft);color:#b3261e;border-radius:8px;padding:9px 11px;margin-top:10px;font-size:11.5px;font-weight:600;}
+  .warning-note[hidden]{display:none;}
+  .warning-note .x{width:13px;height:13px;cursor:pointer;flex-shrink:0;}
+
+  .thumb-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px;}
+  .thumb{position:relative;border-radius:10px;overflow:hidden;aspect-ratio:1/1;background:#eef0f3;border:1px solid var(--border);}
+  .thumb img{width:100%;height:100%;object-fit:cover;display:block;}
+  .thumb .del{position:absolute;top:5px;right:5px;width:20px;height:20px;border-radius:999px;background:rgba(20,22,29,.6);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+  .doc-list{display:flex;flex-direction:column;gap:8px;margin-top:14px;}
+  .doc-row{display:flex;align-items:center;gap:10px;border:1px solid var(--border);border-radius:10px;padding:9px 10px;background:#fff;}
+  .doc-ext{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff;font-size:9.5px;font-weight:800;}
+  .doc-info{flex:1;min-width:0;}
+  .doc-name{font-size:12.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .doc-size{font-size:11px;color:var(--text-tertiary);margin-top:2px;}
+  .doc-del{width:26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center;color:var(--text-tertiary);cursor:pointer;flex-shrink:0;}
+  .doc-del:hover{background:#f4f5f7;}
+  .count-tag{font-size:11px;color:var(--text-tertiary);margin-top:10px;}
+
+  .toast{position:fixed;top:24px;right:24px;background:#14161d;color:#fff;border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:10px;font-size:12.5px;font-weight:700;box-shadow:0 14px 34px rgba(0,0,0,.28);z-index:200;transition:opacity .2s,transform .2s;}
+  .toast[hidden]{display:none;}
+  .toast .dot{width:18px;height:18px;border-radius:999px;background:var(--success);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+</style>
+
+<div class="stage-note">클릭으로 이동해볼 수 있는 프로토타입입니다 — 근무지 현황 &rarr; 일괄 작업 &rarr; 일괄 수정</div>
+
+<div class="app-shell">
+  <div class="topbar">
+    <div class="topbar-left">
+      <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      샤플앤컴퍼니
+    </div>
+    <div class="topbar-right">
+      <div class="chip-inquiry">
+        <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
+        1:1 문의
+      </div>
+      <div class="icon-btn"><svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg><span class="dot"></span></div>
+      <div class="icon-btn"><svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg></div>
+      <div class="icon-btn"><svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 17a5 5 0 01-1-9.9A6 6 0 0118 8a4 4 0 011 7.9"/><path d="M12 12v6"/><path d="M9 15l3 3 3-3"/></svg></div>
+      <div class="lang">
+        <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a15 15 0 010 18 15 15 0 010-18z"/></svg>
+        한국어
+      </div>
+      <div class="avatar">sh</div>
+    </div>
+  </div>
+
+  <div class="body-row">
+    <aside class="sidebar">
+      <div class="nav-solo">
+        <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1"/><circle cx="18" cy="20" r="1"/><path d="M2 3h2l2.4 12.2a2 2 0 002 1.8h8.6a2 2 0 002-1.7L21 8H6"/></svg>
+        Pre-order
+      </div>
+      <div class="nav-scroll">
+        <div class="nav-section">
+          <div class="nav-section-label"><svg class="icon" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg>목표 및 평가</div>
+          <div class="nav-item"><svg class="icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/></svg>판매 목표</div>
+          <div class="nav-item"><svg class="icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 15l6-6"/></svg>인센티브</div>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-label"><svg class="icon" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg>비용</div>
+          <div class="nav-item"><svg class="icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h12v20l-3-2-3 2-3-2-3 2z"/><path d="M9 7h6M9 11h6"/></svg>비용 정산</div>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-label"><svg class="icon" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg>승인</div>
+          <div class="nav-item"><svg class="icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 12l3 3 5-6"/></svg>승인</div>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-label"><svg class="icon" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg>관리</div>
+          <div class="nav-item"><svg class="icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M5 20a7 7 0 0114 0"/></svg>구성원</div>
+          <div class="nav-item active"><svg class="icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.4-7-11.5A7 7 0 0119 9.5C19 14.6 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.3"/></svg>근무지</div>
+          <div class="nav-item"><svg class="icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="8.5" cy="8" r="3"/><circle cx="16" cy="9.5" r="2.3"/><path d="M2.5 20a6.2 6.2 0 0112 0"/><path d="M14.3 15a5.2 5.2 0 016.2 5"/></svg>그룹</div>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-label"><svg class="icon" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg>설정 및 결제</div>
+          <div class="nav-item"><svg class="icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 00-.13-1.36l2-1.56-2-3.46-2.36.95a7 7 0 00-2.36-1.37L13.8 3h-4l-.35 2.2a7 7 0 00-2.36 1.37l-2.36-.95-2 3.46 2 1.56A7 7 0 005 12c0 .46.04.9.13 1.36l-2 1.56 2 3.46 2.36-.95a7 7 0 002.36 1.37L10.2 21h4l.35-2.2a7 7 0 002.36-1.37l2.36.95 2-3.46-2-1.56A7 7 0 0019 12z"/></svg>회사 설정</div>
+          <div class="nav-item"><svg class="icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>기능 설정</div>
+          <div class="nav-item"><svg class="icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2.5"/><path d="M2 10h20"/></svg>결제</div>
+        </div>
+      </div>
+      <div class="sidebar-footer">
+        <span style="display:flex;align-items:center;gap:8px;"><svg class="icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 19h16"/></svg>다운로드</span>
+        <svg class="icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+      </div>
+    </aside>
+
+    <div class="content">
+      <!-- DASHBOARD VIEW -->
+      <div id="panel-dashboard" class="panel-view">
+        <div class="dash-pad">
+          <div class="dash-tabs"><span class="active">현황</span><span>설정</span></div>
+          <div class="dash-toprow">
+            <div class="dash-count">근무지 224</div>
+            <div style="position:relative;">
+              <button class="btn btn-solid">+ 근무지 추가</button>
+              <button class="btn btn-line" id="btn-bulk">일괄 작업
+                <div class="bulk-menu" id="bulk-menu" hidden>
+                  <button id="btn-bulk-edit">일괄 수정</button>
+                  <button>일괄 비활성화</button>
+                </div>
+              </button>
+            </div>
+          </div>
+          <div class="dash-cards">
+            <div class="dash-card"><div class="skel" style="width:40%;margin-bottom:12px;"></div><div class="skel" style="width:70%;height:22px;margin-bottom:10px;"></div><div class="skel" style="width:55%;"></div></div>
+            <div class="dash-card"><div class="skel" style="width:40%;margin-bottom:12px;"></div><div class="skel" style="width:70%;height:22px;margin-bottom:10px;"></div><div class="skel" style="width:55%;"></div></div>
+          </div>
+          <div class="dash-table">
+            <div class="dash-row"><div class="skel"></div><div class="skel" style="width:70%;"></div><div class="skel" style="width:50%;"></div><div class="skel" style="width:40%;"></div><div class="skel" style="width:60%;"></div></div>
+            <div class="dash-row"><div class="skel"></div><div class="skel" style="width:60%;"></div><div class="skel" style="width:45%;"></div><div class="skel" style="width:35%;"></div><div class="skel" style="width:55%;"></div></div>
+            <div class="dash-row"><div class="skel"></div><div class="skel" style="width:65%;"></div><div class="skel" style="width:48%;"></div><div class="skel" style="width:38%;"></div><div class="skel" style="width:58%;"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- UPLOAD VIEW -->
+      <div id="panel-upload" class="panel-view" hidden>
+        <div class="page-header">
+          <div class="page-title">
+            <svg id="btn-back" class="icon back" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+            <span id="page-title-text">근무지 일괄 수정 / 추가 정보</span>
+          </div>
+          <button class="btn-save disabled" id="btn-save">
+            <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+            저장
+          </button>
+        </div>
+        <div class="page-body">
+          <div class="panel">
+            <div class="panel-header">파일 업로드</div>
+            <div class="panel-body">
+              <div class="step-col">
+                <div class="step-pill">STEP 1</div>
+                <div class="step-title">근무지 및 추가 정보 선택</div>
+                <div class="step-desc">업로드할 추가 정보 항목과 근무지를 선택해주세요. 항목이 사진/문서 중 어떤 유형인지에 따라 STEP 2의 업로드 방식이 자동으로 결정됩니다.</div>
+
+                <div class="field">
+                  <div class="field-label">추가 정보</div>
+                  <div class="field-box placeholder" id="item-field">
+                    <span id="item-field-text">선택</span>
+                    <svg class="icon arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+                  </div>
+                  <div class="dropdown-panel" id="item-picker" hidden></div>
+                </div>
+
+                <div class="field">
+                  <div class="field-label">근무지</div>
+                  <div class="field-box placeholder" id="workplace-field">
+                    <span id="workplace-field-placeholder">선택</span>
+                    <svg class="icon arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+                  </div>
+                  <div class="dropdown-panel" id="workplace-picker" hidden></div>
+                </div>
+              </div>
+
+              <div class="step-col right">
+                <div class="step-pill">STEP 2</div>
+                <div class="step-title">파일 선택</div>
+                <div class="step-desc" id="step2-desc">먼저 STEP 1에서 추가 정보 항목을 선택해주세요.</div>
+
+                <div class="dropzone is-disabled" id="dropzone">
+                  <input type="file" multiple id="file-input" disabled>
+                  <div class="dropzone-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 17a5 5 0 01-1-9.9A6 6 0 0118 8a4 4 0 011 7.9"/><path d="M12 12v7"/><path d="M9 15l3-3 3 3"/></svg></div>
+                  <div class="dropzone-text">이곳에 파일을 끌어 넣거나 내 컴퓨터에서 가져올 파일을 선택해주세요.</div>
+                  <div class="dropzone-note" id="dropzone-note">추가 정보 항목을 먼저 선택해주세요.</div>
+                </div>
+
+                <div class="warning-note" id="warning-note" hidden>
+                  <span id="warning-text"></span>
+                  <svg class="x" id="warning-close" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                </div>
+
+                <div id="file-area"></div>
+                <div class="count-tag" id="count-tag" hidden></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL -->
+  <div class="overlay" id="overlay" hidden>
+    <div class="modal">
+      <div class="modal-title">근무지 정보 일괄 수정</div>
+      <div class="option-list" id="option-list"></div>
+      <div class="modal-note" id="modal-note"></div>
+      <div class="modal-actions">
+        <button class="btn-outline" id="btn-cancel">취소</button>
+        <button class="btn-primary" id="btn-confirm">확인</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" hidden>
+  <span class="dot"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span>
+  <span id="toast-text">수정이 완료되었습니다.</span>
+</div>
+
+<script>
+(function(){
+  var WORKPLACES = [
+    {id:'gangnam', name:'강남점'}, {id:'hongdae', name:'홍대점'}, {id:'pangyo', name:'판교점'},
+    {id:'yeoksam', name:'역삼점'}, {id:'yeouido', name:'여의도점'}, {id:'seocho', name:'서초점'},
+  ];
+  var ITEMS = [
+    {id:'ext-photo', name:'외관 사진', type:'photo'},
+    {id:'int-photo', name:'내부 사진', type:'photo'},
+    {id:'parking-photo', name:'주차장 사진', type:'photo'},
+    {id:'lease-doc', name:'임대차 계약서', type:'document'},
+    {id:'biz-doc', name:'사업자 등록증', type:'document'},
+    {id:'fire-doc', name:'소방 점검표', type:'document'},
+  ];
+  var EXT_META = {
+    pdf:{label:'PDF', color:'#e5484d'}, ppt:{label:'PPT', color:'#e8804e'}, pptx:{label:'PPT', color:'#e8804e'},
+    xls:{label:'XLS', color:'#12805c'}, xlsx:{label:'XLS', color:'#12805c'},
+  };
+  var MODAL_OPTIONS = [
+    {id:'basic', title:'기본 및 고급 정보', isNew:false, desc:'근무지명, 주소 및 위치(위경도), 출퇴근 위치 인증 방법, 근무지 코드, 도 및 도시, 근무지 그룹, 등급, 유통사 및 채널'},
+    {id:'text', title:'추가 정보', isNew:false, desc:"추가 정보 중 '텍스트' 유형의 데이터"},
+    {id:'media', title:'추가 정보', isNew:true, desc:"추가 정보 중 '사진', '문서' 유형의 데이터"},
+  ];
+
+  var state = {
+    modalSelected: 'media',
+    selectedItemId: null,
+    workplaceIds: [],
+    files: [],
+    warning: null,
+    workplacePickerOpen: false,
+    itemPickerOpen: false,
+  };
+
+  var $ = function(id){ return document.getElementById(id); };
+  function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function fmtSize(bytes){
+    if (bytes < 1024*1024) return Math.max(1, Math.round(bytes/1024)) + 'KB';
+    return (bytes/1024/1024).toFixed(1) + 'MB';
+  }
+  function selectedItem(){ return ITEMS.find(function(i){ return i.id === state.selectedItemId; }) || null; }
+
+  // ---------- view switching ----------
+  function showView(name){
+    $('panel-dashboard').hidden = name !== 'dashboard';
+    $('panel-upload').hidden = name !== 'upload';
+  }
+  function openBulkMenu(e){ e.stopPropagation(); $('bulk-menu').hidden = !$('bulk-menu').hidden; }
+  function closeBulkMenu(){ $('bulk-menu').hidden = true; }
+
+  function resetUploadState(){
+    state.selectedItemId = null;
+    state.workplaceIds = [];
+    state.files = [];
+    state.warning = null;
+    state.workplacePickerOpen = false;
+    state.itemPickerOpen = false;
+  }
+
+  function openModal(){
+    state.modalSelected = 'media';
+    renderModal();
+    $('overlay').hidden = false;
+  }
+  function closeModal(){ $('overlay').hidden = true; }
+
+  function confirmModal(){
+    if (state.modalSelected !== 'media') {
+      $('modal-note').textContent = '이 프로토타입은 ‘추가 정보(사진, 문서)’ 흐름만 클릭해서 이동해볼 수 있어요.';
+      return;
+    }
+    closeModal();
+    resetUploadState();
+    showView('upload');
+    renderUpload();
+  }
+
+  // ---------- modal render ----------
+  function renderModal(){
+    var list = $('option-list');
+    list.innerHTML = '';
+    MODAL_OPTIONS.forEach(function(opt){
+      var card = document.createElement('div');
+      card.className = 'option-card' + (state.modalSelected === opt.id ? ' is-selected' : '');
+      var title = document.createElement('div');
+      title.className = 'option-title';
+      var titleText = document.createElement('span');
+      titleText.textContent = opt.title;
+      title.appendChild(titleText);
+      if (opt.isNew) {
+        var badge = document.createElement('span');
+        badge.className = 'option-badge';
+        badge.textContent = 'NEW';
+        title.appendChild(badge);
+      }
+      var desc = document.createElement('div');
+      desc.className = 'option-desc';
+      desc.textContent = opt.desc;
+      card.appendChild(title);
+      card.appendChild(desc);
+      card.addEventListener('click', function(){
+        state.modalSelected = opt.id;
+        $('modal-note').textContent = '';
+        renderModal();
+      });
+      list.appendChild(card);
+    });
+  }
+
+  // ---------- upload page render ----------
+  function renderUpload(){
+    renderItemField();
+    renderWorkplaceField();
+    renderStep2();
+    renderSaveButton();
+  }
+
+  function renderItemField(){
+    var item = selectedItem();
+    $('item-field-text').textContent = item ? item.name : '선택';
+    $('item-field').classList.toggle('placeholder', !item);
+
+    var panel = $('item-picker');
+    panel.hidden = !state.itemPickerOpen;
+    panel.innerHTML = '';
+    ['photo','document'].forEach(function(type){
+      var label = document.createElement('div');
+      label.className = 'dropdown-group-label';
+      label.textContent = type === 'photo' ? '사진 유형' : '문서 유형';
+      panel.appendChild(label);
+      ITEMS.filter(function(i){ return i.type === type; }).forEach(function(i){
+        var row = document.createElement('div');
+        row.className = 'dropdown-row' + (state.selectedItemId === i.id ? ' is-picked' : '');
+        row.textContent = i.name;
+        row.addEventListener('click', function(){
+          state.selectedItemId = i.id;
+          state.itemPickerOpen = false;
+          state.warning = null;
+          renderUpload();
+        });
+        panel.appendChild(row);
+      });
+    });
+  }
+
+  function renderWorkplaceField(){
+    var field = $('workplace-field');
+    var placeholder = $('workplace-field-placeholder');
+    field.classList.toggle('placeholder', state.workplaceIds.length === 0);
+    field.querySelectorAll('.chip').forEach(function(c){ c.remove(); });
+    if (state.workplaceIds.length === 0) {
+      placeholder.hidden = false;
+    } else {
+      placeholder.hidden = true;
+      state.workplaceIds.slice().reverse().forEach(function(id){
+        var w = WORKPLACES.find(function(x){ return x.id === id; });
+        var chip = document.createElement('span');
+        chip.className = 'chip';
+        var nameSpan = document.createElement('span');
+        nameSpan.textContent = w ? w.name : id;
+        chip.appendChild(nameSpan);
+        var x = document.createElementNS('http://www.w3.org/2000/svg','svg');
+        x.setAttribute('class','icon x'); x.setAttribute('width','12'); x.setAttribute('height','12');
+        x.setAttribute('viewBox','0 0 24 24'); x.setAttribute('fill','none'); x.setAttribute('stroke','currentColor');
+        x.setAttribute('stroke-width','2.6'); x.setAttribute('stroke-linecap','round'); x.setAttribute('stroke-linejoin','round');
+        x.innerHTML = '<path d="M18 6L6 18M6 6l12 12"/>';
+        x.addEventListener('click', function(e){
+          e.stopPropagation();
+          state.workplaceIds = state.workplaceIds.filter(function(w2){ return w2 !== id; });
+          renderUpload();
+        });
+        chip.appendChild(x);
+        field.insertBefore(chip, placeholder);
+      });
+    }
+
+    var panel = $('workplace-picker');
+    panel.hidden = !state.workplacePickerOpen;
+    panel.innerHTML = '';
+    WORKPLACES.forEach(function(w){
+      var checked = state.workplaceIds.indexOf(w.id) !== -1;
+      var row = document.createElement('div');
+      row.className = 'dropdown-row';
+      var box = document.createElement('span');
+      box.className = 'checkbox' + (checked ? ' checked' : '');
+      if (checked) box.innerHTML = '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>';
+      var nameSpan = document.createElement('span');
+      nameSpan.textContent = w.name;
+      row.appendChild(box);
+      row.appendChild(nameSpan);
+      row.addEventListener('click', function(){
+        if (checked) state.workplaceIds = state.workplaceIds.filter(function(x){ return x !== w.id; });
+        else state.workplaceIds = state.workplaceIds.concat([w.id]);
+        renderUpload();
+      });
+      panel.appendChild(row);
+    });
+  }
+
+  function renderStep2(){
+    var item = selectedItem();
+    var dz = $('dropzone');
+    var input = $('file-input');
+    var note = $('dropzone-note');
+    var desc = $('step2-desc');
+
+    if (!item) {
+      dz.classList.add('is-disabled');
+      input.disabled = true;
+      input.removeAttribute('accept');
+      note.textContent = '추가 정보 항목을 먼저 선택해주세요.';
+      desc.textContent = '먼저 STEP 1에서 추가 정보 항목을 선택해주세요.';
+    } else if (item.type === 'photo') {
+      dz.classList.remove('is-disabled');
+      input.disabled = false;
+      input.setAttribute('accept','image/png,image/jpeg');
+      note.textContent = '20MB 이하의 jpg, jpeg, png 파일만 업로드 할 수 있습니다. (최대 10장)';
+      desc.textContent = '업로드한 사진을 미리보기로 확인하고 등록할 수 있습니다.';
+    } else {
+      dz.classList.remove('is-disabled');
+      input.disabled = false;
+      input.setAttribute('accept','.pdf,.ppt,.pptx,.xlsx,.xls');
+      note.textContent = '50MB 이하의 pdf, ppt, xlsx 등 문서 파일을 첨부할 수 있습니다. (최대 10개)';
+      desc.textContent = '업로드한 문서는 미리보기 없이 파일명과 용량으로 목록에 표시됩니다.';
+    }
+
+    $('warning-note').hidden = !state.warning;
+    $('warning-text').textContent = state.warning || '';
+
+    var area = $('file-area');
+    area.innerHTML = '';
+    var countTag = $('count-tag');
+    if (state.files.length === 0) {
+      countTag.hidden = true;
+      return;
+    }
+    countTag.hidden = false;
+    countTag.textContent = state.files.length + ' / 10' + (item && item.type === 'photo' ? '장' : '개') + ' 첨부됨';
+
+    if (item && item.type === 'photo') {
+      var grid = document.createElement('div');
+      grid.className = 'thumb-grid';
+      state.files.forEach(function(f){
+        var t = document.createElement('div');
+        t.className = 'thumb';
+        var img = document.createElement('img');
+        img.src = f.url;
+        var del = document.createElement('div');
+        del.className = 'del';
+        del.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>';
+        del.addEventListener('click', function(){
+          state.files = state.files.filter(function(x){ return x.id !== f.id; });
+          renderUpload();
+        });
+        t.appendChild(img);
+        t.appendChild(del);
+        grid.appendChild(t);
+      });
+      area.appendChild(grid);
+    } else {
+      var list = document.createElement('div');
+      list.className = 'doc-list';
+      state.files.forEach(function(f){
+        var row = document.createElement('div');
+        row.className = 'doc-row';
+        var ext = document.createElement('div');
+        ext.className = 'doc-ext';
+        ext.style.background = f.extColor;
+        ext.textContent = f.extLabel;
+        var info = document.createElement('div');
+        info.className = 'doc-info';
+        var nm = document.createElement('div');
+        nm.className = 'doc-name';
+        nm.textContent = f.name;
+        var sz = document.createElement('div');
+        sz.className = 'doc-size';
+        sz.textContent = fmtSize(f.size);
+        info.appendChild(nm);
+        info.appendChild(sz);
+        var del = document.createElement('div');
+        del.className = 'doc-del';
+        del.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>';
+        del.addEventListener('click', function(){
+          state.files = state.files.filter(function(x){ return x.id !== f.id; });
+          renderUpload();
+        });
+        row.appendChild(ext);
+        row.appendChild(info);
+        row.appendChild(del);
+        list.appendChild(row);
+      });
+      area.appendChild(list);
+    }
+  }
+
+  function canSave(){
+    return state.workplaceIds.length > 0 && !!state.selectedItemId && state.files.length > 0;
+  }
+  function renderSaveButton(){
+    var btn = $('btn-save');
+    var ok = canSave();
+    btn.classList.toggle('enabled', ok);
+    btn.classList.toggle('disabled', !ok);
+  }
+
+  function handleFiles(fileList){
+    var item = selectedItem();
+    if (!item) return;
+    var MAX_COUNT = 10;
+    var MAX_SIZE = item.type === 'photo' ? 20*1024*1024 : 50*1024*1024;
+    var incoming = Array.prototype.slice.call(fileList || []);
+    if (!incoming.length) return;
+    var remaining = MAX_COUNT - state.files.length;
+    var warning = null;
+    var toProcess = incoming;
+    if (incoming.length > remaining) {
+      warning = '파일은 최대 10개까지 첨부할 수 있습니다.';
+      toProcess = incoming.slice(0, Math.max(remaining, 0));
+    }
+    var accepted = [];
+    toProcess.forEach(function(f){
+      var ext = (f.name.split('.').pop() || '').toLowerCase();
+      if (item.type === 'photo') {
+        if (['jpg','jpeg','png'].indexOf(ext) === -1) { if (!warning) warning = '지원되지 않는 파일 형식이거나 파일이 손상되어 불러올 수 없습니다.'; return; }
+      } else {
+        if (!EXT_META[ext]) { if (!warning) warning = '지원되지 않는 파일 형식이거나 파일이 손상되어 불러올 수 없습니다.'; return; }
+      }
+      if (f.size > MAX_SIZE) {
+        if (!warning) warning = item.type === 'photo'
+          ? '20MB 이하의 jpg, jpeg, png 파일만 업로드 할 수 있습니다.'
+          : '50MB 이하의 pdf, ppt, xlsx 등 문서 파일을 첨부할 수 있습니다.';
+        return;
+      }
+      accepted.push(f);
+    });
+    state.warning = warning;
+    if (!accepted.length) { renderUpload(); return; }
+
+    if (item.type === 'photo') {
+      var remainingToRead = accepted.length;
+      accepted.forEach(function(f){
+        var reader = new FileReader();
+        reader.onload = function(){
+          state.files.push({ id: Math.random().toString(36).slice(2), name: f.name, size: f.size, url: reader.result });
+          remainingToRead -= 1;
+          if (remainingToRead === 0) renderUpload();
+        };
+        reader.readAsDataURL(f);
+      });
+    } else {
+      accepted.forEach(function(f){
+        var ext = (f.name.split('.').pop() || '').toLowerCase();
+        var meta = EXT_META[ext] || {label:'FILE', color:'#9aa0ab'};
+        state.files.push({ id: Math.random().toString(36).slice(2), name: f.name, size: f.size, extLabel: meta.label, extColor: meta.color });
+      });
+      renderUpload();
+    }
+  }
+
+  var toastTimer1 = null, toastTimer2 = null;
+  function doSave(){
+    if (!canSave()) return;
+    var toast = $('toast');
+    $('toast-text').textContent = '수정이 완료되었습니다.';
+    toast.hidden = false;
+    clearTimeout(toastTimer1); clearTimeout(toastTimer2);
+    toastTimer1 = setTimeout(function(){
+      showView('dashboard');
+    }, 700);
+    toastTimer2 = setTimeout(function(){
+      toast.hidden = true;
+    }, 2600);
+  }
+
+  // ---------- wiring ----------
+  $('btn-bulk').addEventListener('click', openBulkMenu);
+  document.addEventListener('click', function(e){
+    if (!$('bulk-menu').hidden && !$('btn-bulk').contains(e.target)) closeBulkMenu();
+    if (state.itemPickerOpen && !$('item-field').contains(e.target) && !$('item-picker').contains(e.target)) {
+      state.itemPickerOpen = false; renderItemField();
+    }
+    if (state.workplacePickerOpen && !$('workplace-field').contains(e.target) && !$('workplace-picker').contains(e.target)) {
+      state.workplacePickerOpen = false; renderWorkplaceField();
+    }
+  });
+  $('btn-bulk-edit').addEventListener('click', function(e){ e.stopPropagation(); closeBulkMenu(); openModal(); });
+
+  $('btn-cancel').addEventListener('click', closeModal);
+  $('btn-confirm').addEventListener('click', confirmModal);
+
+  $('btn-back').addEventListener('click', function(){ showView('dashboard'); });
+
+  $('item-field').addEventListener('click', function(e){
+    e.stopPropagation();
+    state.itemPickerOpen = !state.itemPickerOpen;
+    state.workplacePickerOpen = false;
+    renderUpload();
+  });
+  $('workplace-field').addEventListener('click', function(e){
+    e.stopPropagation();
+    state.workplacePickerOpen = !state.workplacePickerOpen;
+    state.itemPickerOpen = false;
+    renderUpload();
+  });
+
+  $('file-input').addEventListener('change', function(e){
+    handleFiles(e.target.files);
+    e.target.value = '';
+  });
+  $('warning-close').addEventListener('click', function(){ state.warning = null; renderStep2(); });
+  $('btn-save').addEventListener('click', doSave);
+
+  showView('dashboard');
+})();
+</script>
