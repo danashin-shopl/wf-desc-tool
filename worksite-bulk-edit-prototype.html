@@ -372,6 +372,18 @@
       </div>
     </div>
   </div>
+
+  <!-- 확인 MODAL (항목 변경 시 파일 초기화 등) -->
+  <div class="overlay" id="confirm-overlay" style="z-index:30;" hidden>
+    <div class="modal" style="width:380px;">
+      <div class="modal-title" id="confirm-title">확인</div>
+      <div class="option-desc" id="confirm-message" style="margin-bottom:22px;"></div>
+      <div class="modal-actions">
+        <button class="btn-outline" id="confirm-cancel">취소</button>
+        <button class="btn-primary" id="confirm-ok">변경</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <div class="toast" id="toast" hidden>
@@ -521,10 +533,32 @@
   }
   function applyItemModal(){
     if (!state.itemModalDraft) return;
-    if (state.itemModalDraft !== state.selectedItemId) state.warning = null;
-    state.selectedItemId = state.itemModalDraft;
-    closeItemModal();
-    renderUpload();
+    var changingItem = state.itemModalDraft !== state.selectedItemId;
+
+    var commit = function(){
+      if (changingItem) { state.files = []; state.warning = null; }
+      state.selectedItemId = state.itemModalDraft;
+      closeItemModal();
+      renderUpload();
+    };
+
+    if (changingItem && state.files.length > 0) {
+      showConfirm('추가 정보 항목을 변경하면 첨부된 파일이 모두 삭제됩니다. 계속하시겠습니까?', commit);
+      return;
+    }
+    commit();
+  }
+
+  // ---------- 공용 확인 모달 ----------
+  var pendingConfirmAction = null;
+  function showConfirm(message, onConfirm){
+    $('confirm-message').textContent = message;
+    pendingConfirmAction = onConfirm;
+    $('confirm-overlay').hidden = false;
+  }
+  function hideConfirm(){
+    $('confirm-overlay').hidden = true;
+    pendingConfirmAction = null;
   }
 
   function renderItemModal(){
@@ -834,6 +868,12 @@
   });
   $('item-modal-cancel').addEventListener('click', closeItemModal);
   $('item-modal-apply').addEventListener('click', applyItemModal);
+  $('confirm-cancel').addEventListener('click', hideConfirm);
+  $('confirm-ok').addEventListener('click', function(){
+    var fn = pendingConfirmAction;
+    hideConfirm();
+    if (fn) fn();
+  });
   $('item-modal-search-input').addEventListener('input', function(e){
     state.itemModalQuery = e.target.value;
     renderItemModal();
